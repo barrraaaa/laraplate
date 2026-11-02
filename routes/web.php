@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Modules\Admin\Http\Controllers\AdminController;
+use App\Modules\Admin\Http\Controllers\NotificationController;
+use App\Modules\Auth\Http\Controllers\ApiTokenController;
+use App\Modules\Auth\Http\Controllers\FileController;
 use App\Modules\Billing\Http\Controllers\BillingController;
 use App\Modules\Billing\Http\Controllers\StripeWebhookController;
 use App\Modules\Tenancy\Http\Controllers\InvitationController;
@@ -60,6 +64,45 @@ Route::get('/invitations/{token}', [InvitationController::class, 'accept'])
 Route::post('/invitations/{token}/decline', [InvitationController::class, 'decline'])
     ->middleware('auth')
     ->name('invitations.decline');
+
+/*
+|--------------------------------------------------------------------------
+| Admin panel (PRD 5.11) — platform administration.
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth', 'verified', 'platform-admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/users', [AdminController::class, 'users'])->name('users.index');
+    Route::get('/organizations', [AdminController::class, 'organizations'])->name('organizations.index');
+    Route::get('/subscriptions', [AdminController::class, 'subscriptions'])->name('subscriptions.index');
+    Route::get('/transactions', [AdminController::class, 'transactions'])->name('transactions.index');
+    Route::get('/invoices', [AdminController::class, 'invoices'])->name('invoices.index');
+    Route::get('/activity', [AdminController::class, 'activity'])->name('activity.index');
+    Route::get('/health', [AdminController::class, 'health'])->name('health.index');
+});
+
+/*
+|--------------------------------------------------------------------------
+| In-app notifications + personal API tokens.
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+});
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/settings/api-tokens', [ApiTokenController::class, 'index'])->name('api-tokens.index');
+    Route::post('/settings/api-tokens', [ApiTokenController::class, 'store'])->name('api-tokens.store');
+    Route::delete('/settings/api-tokens/{token}', [ApiTokenController::class, 'destroy'])->name('api-tokens.destroy');
+});
+
+// Private files served through signed, expiring URLs (PRD 5.10).
+Route::get('/files/{path}', [FileController::class, 'show'])
+    ->middleware('signed')
+    ->name('files.show');
 
 // Stripe webhooks — signature-verified by Cashier; exempt from CSRF.
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])

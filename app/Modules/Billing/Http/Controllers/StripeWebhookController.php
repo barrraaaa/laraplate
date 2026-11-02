@@ -3,6 +3,7 @@
 namespace App\Modules\Billing\Http\Controllers;
 
 use App\Models\Organization;
+use App\Modules\Audit\Services\Auditing;
 use App\Modules\Billing\Models\Invoice;
 use App\Modules\Billing\Models\Transaction;
 use App\Modules\Billing\Notifications\PaymentFailed;
@@ -20,6 +21,8 @@ use Laravel\Cashier\Subscription;
  */
 class StripeWebhookController extends WebhookController
 {
+    public function __construct(private Auditing $auditing) {}
+
     protected function handleInvoicePaymentSucceeded(array $payload)
     {
         parent::handleInvoicePaymentSucceeded($payload);
@@ -67,7 +70,7 @@ class StripeWebhookController extends WebhookController
         // Idempotency: the unique constraint on stripe_event_id makes a
         // replayed webhook a no-op — duplicates can never create duplicate
         // payment records (PRD 5.5 acceptance criterion).
-        Transaction::firstOrCreate(
+        $transaction = Transaction::firstOrCreate(
             ['stripe_event_id' => $payload['id']],
             [
                 'organization_id' => $organization->id,
@@ -78,6 +81,14 @@ class StripeWebhookController extends WebhookController
                 'payload' => $payload,
             ],
         );
+
+        if ($transaction->wasRecentlyCreated) {
+            $this->auditing->record('billing.payment_'.$status, $organization, $transaction, [
+                'amount' => $transaction->amount,
+                'currency' => $transaction->currency,
+                'event_type' => $transaction->event_type,
+            ]);
+        }
     }
 
     /**

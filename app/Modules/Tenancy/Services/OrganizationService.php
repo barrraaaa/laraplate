@@ -4,6 +4,7 @@ namespace App\Modules\Tenancy\Services;
 
 use App\Models\Organization;
 use App\Models\User;
+use App\Modules\Audit\Services\Auditing;
 use App\Modules\Tenancy\Enums\OrganizationRole;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -14,7 +15,10 @@ use InvalidArgumentException;
  */
 final class OrganizationService
 {
-    public function __construct(private MembershipService $memberships) {}
+    public function __construct(
+        private MembershipService $memberships,
+        private Auditing $auditing,
+    ) {}
 
     /**
      * The invisible workspace behind "single-user mode": one per user,
@@ -62,6 +66,8 @@ final class OrganizationService
 
             $this->memberships->join($organization, $owner, OrganizationRole::Owner);
 
+            $this->auditing->record('organization.created', $organization, $organization);
+
             return $organization;
         });
     }
@@ -91,6 +97,8 @@ final class OrganizationService
         );
 
         $organization->delete();
+
+        $this->auditing->record('organization.archived', $organization, $organization);
     }
 
     private function uniqueSlug(string $name, ?string $existingId = null): string

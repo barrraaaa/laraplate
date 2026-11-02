@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Financial event log (PRD 5.5/5.11): one row per Stripe webhook event.
@@ -21,6 +22,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $amount
  * @property string $currency
  * @property string $status
+ * @property Carbon|null $created_at
+ * @property-read Organization|null $organization
  */
 #[Fillable(['organization_id', 'stripe_event_id', 'event_type', 'amount', 'currency', 'status', 'payload'])]
 class Transaction extends Model
@@ -39,6 +42,7 @@ class Transaction extends Model
         ];
     }
 
+    /** @return BelongsTo<Organization, $this> */
     public function organization(): BelongsTo
     {
         return $this->belongsTo(Organization::class);

@@ -117,6 +117,36 @@ declare module 'ziggy-js' {
                 required: true;
             },
         ];
+        'admin.dashboard': [];
+        'admin.users.index': [];
+        'admin.organizations.index': [];
+        'admin.subscriptions.index': [];
+        'admin.transactions.index': [];
+        'admin.invoices.index': [];
+        'admin.activity.index': [];
+        'admin.health.index': [];
+        'notifications.read': [
+            {
+                name: 'notification';
+                required: true;
+            },
+        ];
+        'notifications.read-all': [];
+        'api-tokens.index': [];
+        'api-tokens.store': [];
+        'api-tokens.destroy': [
+            {
+                name: 'token';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'files.show': [
+            {
+                name: 'path';
+                required: true;
+            },
+        ];
         'billing.show': [];
         'billing.checkout': [];
         'billing.cancel': [];

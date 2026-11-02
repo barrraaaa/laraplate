@@ -14,28 +14,78 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import {
     Activity,
+    ArrowLeft,
     BarChart3,
     Building2,
     CreditCard,
     HeartPulse,
     Inbox,
     Receipt,
-    Settings,
     Tag,
     Users,
     Webhook,
 } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 
+const NAVIGATION: {
+    section: string;
+    items: { label: string; href: string; icon: typeof Users }[];
+}[] = [
+    {
+        section: 'Overview',
+        items: [
+            { label: 'Dashboard', href: '/admin', icon: BarChart3 },
+            { label: 'System Health', href: '/admin/health', icon: HeartPulse },
+        ],
+    },
+    {
+        section: 'Customers',
+        items: [
+            { label: 'Users', href: '/admin/users', icon: Users },
+            {
+                label: 'Organizations',
+                href: '/admin/organizations',
+                icon: Building2,
+            },
+            {
+                label: 'Subscriptions',
+                href: '/admin/subscriptions',
+                icon: CreditCard,
+            },
+        ],
+    },
+    {
+        section: 'Commerce',
+        items: [
+            {
+                label: 'Transactions',
+                href: '/admin/transactions',
+                icon: Receipt,
+            },
+            { label: 'Invoices', href: '/admin/invoices', icon: Inbox },
+            { label: 'Coupons', href: '/admin/coupons', icon: Tag },
+        ],
+    },
+    {
+        section: 'Platform',
+        items: [
+            { label: 'Webhooks', href: '/admin/webhooks', icon: Webhook },
+            { label: 'Activity Logs', href: '/admin/activity', icon: Activity },
+        ],
+    },
+];
+
 /**
- * Platform admin shell — admin pages (Phase 4) render inside this layout.
- * Navigation mirrors the admin panel blueprint (laravel_saas_admin_panel
- * .tsx); hrefs are wired to real routes as each admin screen ships.
+ * Platform admin shell — mirrors the admin panel blueprint
+ * (laravel_saas_admin_panel_boilerplate.tsx): grouped sidebar navigation
+ * and a top bar. Coupons/Webhooks pages land as dedicated screens later.
  */
 export default function AdminLayout({ children }: PropsWithChildren) {
+    const url = usePage().url;
+
     return (
         <SidebarProvider>
             <Sidebar>
@@ -55,40 +105,41 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                 </SidebarHeader>
 
                 <SidebarContent>
-                    <AdminSidebarGroup label="Overview">
-                        <AdminSidebarItem icon={BarChart3} label="Dashboard" />
-                        <AdminSidebarItem
-                            icon={HeartPulse}
-                            label="System Health"
-                        />
-                    </AdminSidebarGroup>
+                    {NAVIGATION.map((group) => (
+                        <SidebarGroup key={group.section}>
+                            <SidebarGroupLabel>
+                                {group.section}
+                            </SidebarGroupLabel>
+                            <SidebarMenu>
+                                {group.items.map((item) => (
+                                    <SidebarMenuItem key={item.href}>
+                                        <SidebarMenuButton
+                                            asChild
+                                            isActive={url === item.href}
+                                        >
+                                            <Link href={item.href}>
+                                                <item.icon />
+                                                <span>{item.label}</span>
+                                            </Link>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                ))}
+                            </SidebarMenu>
+                        </SidebarGroup>
+                    ))}
 
-                    <AdminSidebarGroup label="Customers">
-                        <AdminSidebarItem icon={Users} label="Users" />
-                        <AdminSidebarItem
-                            icon={Building2}
-                            label="Organizations"
-                        />
-                        <AdminSidebarItem
-                            icon={CreditCard}
-                            label="Subscriptions"
-                        />
-                    </AdminSidebarGroup>
-
-                    <AdminSidebarGroup label="Commerce">
-                        <AdminSidebarItem icon={Receipt} label="Transactions" />
-                        <AdminSidebarItem icon={Inbox} label="Invoices" />
-                        <AdminSidebarItem icon={Tag} label="Coupons" />
-                    </AdminSidebarGroup>
-
-                    <AdminSidebarGroup label="Platform">
-                        <AdminSidebarItem icon={Webhook} label="Webhooks" />
-                        <AdminSidebarItem
-                            icon={Activity}
-                            label="Activity Logs"
-                        />
-                        <AdminSidebarItem icon={Settings} label="Settings" />
-                    </AdminSidebarGroup>
+                    <SidebarGroup>
+                        <SidebarMenu>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton asChild>
+                                    <Link href={route('dashboard')}>
+                                        <ArrowLeft />
+                                        <span>Back to app</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </SidebarMenu>
+                    </SidebarGroup>
                 </SidebarContent>
             </Sidebar>
 
@@ -104,37 +155,5 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                 <div className="p-4 sm:p-6">{children}</div>
             </SidebarInset>
         </SidebarProvider>
-    );
-}
-
-function AdminSidebarGroup({
-    label,
-    children,
-}: PropsWithChildren<{ label: string }>) {
-    return (
-        <SidebarGroup>
-            <SidebarGroupLabel>{label}</SidebarGroupLabel>
-            <SidebarMenu>{children}</SidebarMenu>
-        </SidebarGroup>
-    );
-}
-
-function AdminSidebarItem({
-    icon: Icon,
-    label,
-}: {
-    icon: typeof Users;
-    label: string;
-}) {
-    return (
-        <SidebarMenuItem>
-            {/* Admin routes land in Phase 4 — hrefs are stubbed meanwhile. */}
-            <SidebarMenuButton asChild>
-                <Link href="#">
-                    <Icon />
-                    <span>{label}</span>
-                </Link>
-            </SidebarMenuButton>
-        </SidebarMenuItem>
     );
 }

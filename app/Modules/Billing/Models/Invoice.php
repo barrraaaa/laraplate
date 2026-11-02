@@ -28,6 +28,8 @@ use Illuminate\Support\Carbon;
  * @property string|null $pdf_url
  * @property string|null $hosted_url
  * @property Carbon|null $paid_at
+ * @property Carbon|null $created_at
+ * @property-read Organization|null $organization
  */
 #[Fillable(['organization_id', 'stripe_invoice_id', 'number', 'amount_due', 'amount_paid', 'currency', 'status', 'period_start', 'period_end', 'pdf_url', 'hosted_url', 'paid_at'])]
 class Invoice extends Model

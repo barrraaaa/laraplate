@@ -27,7 +27,19 @@ class PaymentSucceeded extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toDatabase(object $notifiable): array
+    {
+        return [
+            'title' => 'Payment received',
+            'body' => number_format($this->amountCents / 100, 2).' USD was charged for '.$this->organization->name.'.',
+            'url' => route('billing.show'),
+        ];
     }
 
     public function toMail(object $notifiable): MailMessage

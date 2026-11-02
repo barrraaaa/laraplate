@@ -25,7 +25,19 @@ class PaymentFailed extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toDatabase(object $notifiable): array
+    {
+        return [
+            'title' => 'Payment failed',
+            'body' => 'A payment for '.$this->organization->name.' could not be processed.',
+            'url' => route('billing.show'),
+        ];
     }
 
     public function toMail(object $notifiable): MailMessage

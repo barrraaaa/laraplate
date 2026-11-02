@@ -15,6 +15,7 @@ import {
     SheetHeader,
     SheetTrigger,
 } from '@/components/ui/sheet';
+import NotificationBell from '@/features/notifications/notification-bell';
 import OrganizationSwitcher from '@/features/teams/organization-switcher';
 import { useAuth, useCurrentOrganization } from '@/hooks/use-organization';
 import { PageProps } from '@/types';
@@ -101,6 +102,8 @@ export default function AppLayout({
 
                         <ThemeToggle />
 
+                        <NotificationBell />
+
                         <UserMenu />
 
                         <div className="md:hidden">
@@ -155,10 +158,18 @@ function UserMenu() {
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <button
-                    className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-full text-xs font-semibold"
+                    className="bg-primary text-primary-foreground flex size-8 items-center justify-center overflow-hidden rounded-full text-xs font-semibold"
                     aria-label="Account menu"
                 >
-                    {user.name.charAt(0).toUpperCase()}
+                    {user.avatar_url ? (
+                        <img
+                            src={user.avatar_url}
+                            alt={user.name}
+                            className="size-full object-cover"
+                        />
+                    ) : (
+                        user.name.charAt(0).toUpperCase()
+                    )}
                 </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
@@ -172,6 +183,11 @@ function UserMenu() {
                 <DropdownMenuItem asChild>
                     <Link href={route('profile.edit')}>Profile settings</Link>
                 </DropdownMenuItem>
+                {user.is_platform_admin && (
+                    <DropdownMenuItem asChild>
+                        <Link href="/admin">Admin panel</Link>
+                    </DropdownMenuItem>
+                )}
                 <DropdownMenuItem asChild>
                     <Link
                         href={route('logout')}

@@ -24,6 +24,7 @@ export default function UpdateProfileInformationForm({
         useForm({
             name: user.name,
             email: user.email,
+            avatar: null as File | null,
         });
 
     const submit: FormEventHandler = (e) => {
@@ -43,6 +44,35 @@ export default function UpdateProfileInformationForm({
             </header>
 
             <form onSubmit={submit} className="mt-6 space-y-6">
+                <div className="flex items-center gap-4">
+                    {user.avatar_url ? (
+                        <img
+                            src={user.avatar_url}
+                            alt={user.name}
+                            className="bg-muted size-14 rounded-full object-cover"
+                        />
+                    ) : (
+                        <div className="bg-primary text-primary-foreground flex size-14 items-center justify-center rounded-full text-lg font-semibold">
+                            {user.name.charAt(0).toUpperCase()}
+                        </div>
+                    )}
+                    <div className="flex-1 space-y-1.5">
+                        <Label htmlFor="avatar">Avatar</Label>
+                        <Input
+                            id="avatar"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                    setData('avatar', file);
+                                }
+                            }}
+                        />
+                        <FormError message={errors.avatar} />
+                    </div>
+                </div>
+
                 <div className="space-y-1.5">
                     <Label htmlFor="name">Name</Label>
                     <Input

@@ -7,6 +7,7 @@ use App\Models\Invitation;
 use App\Models\Membership;
 use App\Models\Organization;
 use App\Models\User;
+use App\Modules\Audit\Services\Auditing;
 use App\Modules\Tenancy\Enums\OrganizationRole;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -21,7 +22,10 @@ use RuntimeException;
  */
 final class InvitationService
 {
-    public function __construct(private MembershipService $memberships) {}
+    public function __construct(
+        private MembershipService $memberships,
+        private Auditing $auditing,
+    ) {}
 
     public function invite(Organization $organization, string $email, OrganizationRole $role, User $inviter): Invitation
     {
@@ -46,6 +50,11 @@ final class InvitationService
             Mail::to($email)->queue(new InvitationMail($invitation, $token));
 
             $invitation->forceFill(['sent_at' => now()])->save();
+
+            $this->auditing->record('organization.invitation_sent', $organization, $invitation, [
+                'email' => $invitation->email,
+                'role' => $invitation->role->value,
+            ]);
 
             return $invitation;
         });
@@ -83,6 +92,11 @@ final class InvitationService
                 'accepted_by' => $user->id,
             ])->save();
 
+            $this->auditing->record('organization.invitation_accepted', $invitation->organization, $user, [
+                'email' => $invitation->email,
+                'role' => $invitation->role->value,
+            ]);
+
             return $membership;
         });
     }
@@ -92,6 +106,10 @@ final class InvitationService
         throw_unless($invitation->isPending(), RuntimeException::class, 'This invitation is no longer valid.');
 
         $invitation->forceFill(['declined_at' => now()])->save();
+
+        $this->auditing->record('organization.invitation_declined', $invitation->organization, $invitation, [
+            'email' => $invitation->email,
+        ]);
     }
 
     public function revoke(Invitation $invitation): void
@@ -99,6 +117,10 @@ final class InvitationService
         throw_unless($invitation->isPending(), RuntimeException::class, 'This invitation is no longer valid.');
 
         $invitation->forceFill(['revoked_at' => now()])->save();
+
+        $this->auditing->record('organization.invitation_revoked', $invitation->organization, $invitation, [
+            'email' => $invitation->email,
+        ]);
     }
 
     public function findByToken(string $token): ?Invitation

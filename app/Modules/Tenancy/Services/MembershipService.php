@@ -5,8 +5,10 @@ namespace App\Modules\Tenancy\Services;
 use App\Models\Membership;
 use App\Models\Organization;
 use App\Models\User;
+use App\Modules\Audit\Services\Auditing;
 use App\Modules\Tenancy\Enums\OrganizationRole;
 use App\Modules\Tenancy\Exceptions\LastOwnerRemovalBlockedException;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use Spatie\Permission\Models\Permission;
@@ -22,6 +24,8 @@ use Spatie\Permission\PermissionRegistrar;
  */
 final class MembershipService
 {
+    public function __construct(private Auditing $auditing) {}
+
     public function join(Organization $organization, User $user, OrganizationRole $role): Membership
     {
         return DB::transaction(function () use ($organization, $user, $role): Membership {
@@ -31,6 +35,10 @@ final class MembershipService
             );
 
             $this->syncPermissions($membership);
+
+            $this->auditing->record('organization.member_joined', $organization, $user, [
+                'role' => $role->value,
+            ]);
 
             return $membership;
         });
@@ -43,6 +51,10 @@ final class MembershipService
 
             $membership->update(['role' => $role->value]);
             $this->syncPermissions($membership);
+
+            $this->auditing->record('organization.member_role_changed', $membership->organization, $membership->user, [
+                'role' => $role->value,
+            ]);
 
             return $membership;
         });
@@ -60,6 +72,10 @@ final class MembershipService
 
             $membership->delete();
             $this->forgetPermissions($membership);
+
+            $this->auditing->record('organization.member_removed', $membership->organization, $membership->user, [
+                'role' => $membership->role->value,
+            ]);
         });
     }
 
@@ -96,7 +112,16 @@ final class MembershipService
             }
 
             $this->changeRole($targetMembership->fresh(), OrganizationRole::Owner);
+
+            $this->auditing->record('organization.ownership_transferred', $organization, $newOwner, [
+                'previous_owner_id' => $this->currentActorId(),
+            ]);
         });
+    }
+
+    private function currentActorId(): ?int
+    {
+        return Auth::id();
     }
 
     /**
