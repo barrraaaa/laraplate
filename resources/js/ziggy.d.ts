@@ -204,7 +204,6 @@ declare module 'ziggy-js' {
             },
         ];
         sitemap: [];
-        deals: [];
         'admin.dashboard': [];
         'admin.users.index': [];
         'admin.organizations.index': [];

@@ -15,14 +15,8 @@ class LandingPageTest extends TestCase
             ->assertOk()
             ->assertInertia(fn ($page) => $page
                 ->component('Home')
-                ->has('store')
                 ->where('canLogin', true)
                 ->where('canRegister', true));
-    }
-
-    public function test_deals_page_renders(): void
-    {
-        $this->get('/deals')->assertOk()->assertInertia(fn ($page) => $page->component('Deals'));
     }
 
     public function test_legal_placeholder_pages_render(): void

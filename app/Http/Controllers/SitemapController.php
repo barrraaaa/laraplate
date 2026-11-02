@@ -17,8 +17,6 @@ class SitemapController extends Controller
         $urls = [
             url('/'),
             route('blog.index'),
-            url('/#pricing'),
-            route('deals'),
             url('/terms'),
             url('/privacy'),
         ];

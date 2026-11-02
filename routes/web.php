@@ -29,11 +29,6 @@ Route::get('/', function () {
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
-        'store' => [
-            'starter' => config('saas.store.starter_url'),
-            'allIn' => config('saas.store.all_in_url'),
-        ],
-        'communityUrl' => config('saas.community.discord_url'),
     ]);
 });
 
@@ -137,10 +132,6 @@ Route::middleware('guest')->group(function () {
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{post:slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
-
-Route::get('/deals', function () {
-    return Inertia::render('Deals');
-})->name('deals');
 
 /*
 |--------------------------------------------------------------------------
