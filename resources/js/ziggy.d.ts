@@ -6,6 +6,110 @@ declare module 'ziggy-js' {
         'profile.edit': [];
         'profile.update': [];
         'profile.destroy': [];
+        'organizations.index': [];
+        'organizations.store': [];
+        'organizations.show': [
+            {
+                name: 'organization';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'organizations.update': [
+            {
+                name: 'organization';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'organizations.destroy': [
+            {
+                name: 'organization';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'organizations.switch': [
+            {
+                name: 'organization';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'organizations.members.update': [
+            {
+                name: 'organization';
+                required: true;
+                binding: 'id';
+            },
+            {
+                name: 'member';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'organizations.members.destroy': [
+            {
+                name: 'organization';
+                required: true;
+                binding: 'id';
+            },
+            {
+                name: 'member';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'organizations.transfer-ownership': [
+            {
+                name: 'organization';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'organizations.invitations.store': [
+            {
+                name: 'organization';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'organizations.invitations.resend': [
+            {
+                name: 'organization';
+                required: true;
+                binding: 'id';
+            },
+            {
+                name: 'invitation';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'organizations.invitations.destroy': [
+            {
+                name: 'organization';
+                required: true;
+                binding: 'id';
+            },
+            {
+                name: 'invitation';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'invitations.accept': [
+            {
+                name: 'token';
+                required: true;
+            },
+        ];
+        'invitations.decline': [
+            {
+                name: 'token';
+                required: true;
+            },
+        ];
         register: [];
         login: [];
         'password.request': [];

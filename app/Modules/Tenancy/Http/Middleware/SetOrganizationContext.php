@@ -8,6 +8,7 @@ use App\Modules\Tenancy\OrganizationContext;
 use App\Modules\Tenancy\Services\OrganizationService;
 use Closure;
 use Illuminate\Http\Request;
+use Spatie\Permission\PermissionRegistrar;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -15,7 +16,8 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * Order: session selection wins (the user's explicit context switch),
  * otherwise the personal organization (auto-created as an invariant).
- * Guests skip resolution entirely.
+ * Guests skip resolution entirely. Also binds the spatie permissions team
+ * so that `$user->can('…')` resolves against the active organization.
  */
 final class SetOrganizationContext
 {
@@ -25,8 +27,12 @@ final class SetOrganizationContext
         $context = app(OrganizationContext::class);
         $context->set(null);
 
+        app(PermissionRegistrar::class)->setPermissionsTeamId(null);
+
         if ($user = $request->user()) {
-            $context->set($this->resolve($request, $user));
+            $context->set($organization = $this->resolve($request, $user));
+
+            app(PermissionRegistrar::class)->setPermissionsTeamId($organization->id);
         }
 
         return $next($request);

@@ -15,7 +15,9 @@ import {
     SheetHeader,
     SheetTrigger,
 } from '@/components/ui/sheet';
+import OrganizationSwitcher from '@/features/teams/organization-switcher';
 import { useAuth, useCurrentOrganization } from '@/hooks/use-organization';
+import { PageProps } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { BadgeCheck, Menu } from 'lucide-react';
 import type { PropsWithChildren, ReactNode } from 'react';
@@ -29,6 +31,7 @@ export default function AppLayout({
     children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
     const organization = useCurrentOrganization();
+    const { availableOrganizations } = usePage<PageProps>().props;
     const url = usePage().url;
 
     const navigation = [
@@ -77,11 +80,18 @@ export default function AppLayout({
                     </div>
 
                     <div className="flex items-center gap-2">
-                        {organization && !organization.personal && (
-                            <span className="text-muted-foreground hidden items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium sm:inline-flex">
-                                <BadgeCheck className="size-3.5" />
-                                {organization.name}
-                            </span>
+                        {availableOrganizations.length > 0 ? (
+                            <OrganizationSwitcher
+                                organizations={availableOrganizations}
+                            />
+                        ) : (
+                            organization &&
+                            !organization.personal && (
+                                <span className="text-muted-foreground hidden items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium sm:inline-flex">
+                                    <BadgeCheck className="size-3.5" />
+                                    {organization.name}
+                                </span>
+                            )
                         )}
 
                         <ThemeToggle />

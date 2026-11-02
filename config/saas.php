@@ -80,4 +80,52 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Invitations
+    |--------------------------------------------------------------------------
+    */
+
+    'invitations' => [
+        'expiry_days' => (int) env('SAAS_INVITATION_EXPIRY_DAYS', 3),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Roles & permissions
+    |--------------------------------------------------------------------------
+    |
+    | The granular permission catalog, assigned to organization roles via
+    | spatie/laravel-permission (organization-scoped). The curated source
+    | of truth remains memberships.role — these are the capabilities each
+    | baseline role conveys; P2/custom roles map through the same model.
+    |
+    */
+
+    'roles' => [
+        'organization-owner' => [
+            'organizations.manage',
+            'organizations.transfer',
+            'organizations.delete',
+            'members.manage',
+            'invitations.manage',
+            'billing.manage',
+            'api.tokens.manage',
+        ],
+        'organization-admin' => [
+            'organizations.manage',
+            'members.manage',
+            'invitations.manage',
+            'billing.manage',
+            'api.tokens.manage',
+        ],
+        'organization-member' => [
+            'projects.create',
+            'projects.view',
+        ],
+        'organization-viewer' => [
+            'projects.view',
+        ],
+    ],
+
 ];

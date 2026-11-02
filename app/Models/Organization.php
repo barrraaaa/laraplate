@@ -42,6 +42,13 @@ class Organization extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /** @return HasMany<Invitation, $this> */
+    public function invitations(): HasMany
+    {
+        return $this->hasMany(Invitation::class);
+    }
+
+    /** @return HasMany<Membership, $this> */
     /** @return HasMany<Membership, $this> */
     public function memberships(): HasMany
     {

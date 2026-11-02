@@ -19,4 +19,9 @@ export type PageProps<
         user: User;
     };
     organization: Organization | null;
+    availableOrganizations: Organization[];
+    saas: {
+        mode: 'single' | 'team' | 'hybrid';
+        features: Record<string, boolean>;
+    };
 };

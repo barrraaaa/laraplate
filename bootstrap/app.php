@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Modules\Tenancy\Exceptions\LastOwnerRemovalBlockedException;
+use App\Modules\Tenancy\Http\Middleware\EnsureOrganizationsEnabled;
 use App\Modules\Tenancy\Http\Middleware\SetOrganizationContext;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -15,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->alias([
+            'organizations-enabled' => EnsureOrganizationsEnabled::class,
+        ]);
+
         $middleware->web(append: [
             SetOrganizationContext::class,
             HandleInertiaRequests::class,
@@ -27,4 +33,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        // Domain rule violations surface as validation feedback, not 500s.
+        $exceptions->render(function (LastOwnerRemovalBlockedException $e, Request $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json(['message' => $e->getMessage()], 422);
+            }
+
+            return back()->withErrors(['role' => $e->getMessage()]);
+        });
     })->create();

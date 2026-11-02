@@ -14,13 +14,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, HasRoles, Notifiable;
 
     protected static function booted(): void
     {
@@ -70,6 +71,22 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->memberships()
             ->firstWhere('organization_id', $organization->id)
             ?->role;
+    }
+
+    public function hasOrganizationRole(Organization $organization, OrganizationRole ...$roles): bool
+    {
+        $role = $this->organizationRole($organization);
+
+        return $role !== null && in_array($role, $roles, true);
+    }
+
+    public function isOrganizationAdmin(Organization $organization): bool
+    {
+        return $this->hasOrganizationRole(
+            $organization,
+            OrganizationRole::Owner,
+            OrganizationRole::Admin,
+        );
     }
 
     /**
