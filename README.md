@@ -51,4 +51,13 @@ Verify the install: `php artisan laraplate:status`. Run a worker for queued mail
 
 ## License
 
-Commercial. See [LICENSE.md](LICENSE.md) for tiers and terms.
+Commercial, two tiers — **[LICENSE.md](LICENSE.md)** holds the binding
+terms; the short version:
+
+- **Starter $39** — full source (ZIP), build your own and your clients'
+  products, no repo access, no lifetime updates
+- **All-in $99** — everything in Starter + private GitHub repository +
+  lifetime V1.x updates
+
+Reselling or redistributing the boilerplate itself is prohibited in both
+tiers.
