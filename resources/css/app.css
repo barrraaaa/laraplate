@@ -134,3 +134,17 @@
     @apply font-sans;
     }
 }
+/* Brand accent — the neutral base palette is intentionally monochrome;
+   these overrides bring in the primary hue (indigo, matching the admin
+   blueprint). Replace with your own brand values. */
+:root {
+    --primary: oklch(0.511 0.262 276.966);
+    --primary-foreground: oklch(0.985 0 0);
+    --ring: oklch(0.511 0.262 276.966);
+}
+
+.dark {
+    --primary: oklch(0.673 0.182 276.935);
+    --primary-foreground: oklch(0.985 0 0);
+    --ring: oklch(0.553 0.195 276.935);
+}
