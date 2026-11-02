@@ -5,6 +5,7 @@ namespace Tests\Feature\Billing;
 use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\User;
+use App\Modules\Billing\Models\Coupon;
 use App\Modules\Billing\Providers\BillingGateway;
 use App\Modules\Billing\Services\BillingService;
 use App\Modules\Tenancy\Services\OrganizationService;
@@ -44,7 +45,7 @@ class SubscriptionLifecycleTest extends TestCase
         $this->app->bind(BillingGateway::class, function () {
             return new class implements BillingGateway
             {
-                public function checkout(Organization $organization, Plan $plan, string $interval): RedirectResponse
+                public function checkout(Organization $organization, Plan $plan, string $interval, ?Coupon $coupon = null): RedirectResponse
                 {
                     return Redirect::to('https://checkout.stripe.test');
                 }

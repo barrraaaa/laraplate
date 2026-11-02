@@ -12,6 +12,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use Throwable;
@@ -102,7 +103,14 @@ class BillingController extends Controller
         $interval = $request->string('interval')->toString();
 
         try {
-            return $this->billing->checkout($organization, $plan, $interval);
+            return $this->billing->checkout(
+                $organization,
+                $plan,
+                $interval,
+                $request->string('coupon_code')->toString() ?: null,
+            );
+        } catch (ValidationException $e) {
+            throw $e; // carries the 'coupon' error bag as-is
         } catch (Throwable $e) {
             // Provider-side failures (missing prices, network, 3DS blocks)
             // surface as user feedback, never a 500.

@@ -15,6 +15,7 @@ class CheckoutRequest extends FormRequest
         return [
             'plan_id' => ['required', 'integer', 'exists:plans,id'],
             'interval' => ['required', Rule::in(['monthly', 'yearly'])],
+            'coupon_code' => ['nullable', 'string', 'max:60'],
         ];
     }
 }

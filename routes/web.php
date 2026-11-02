@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SitemapController;
 use App\Modules\Admin\Http\Controllers\AdminController;
+use App\Modules\Admin\Http\Controllers\CouponAdminController;
 use App\Modules\Admin\Http\Controllers\NotificationController;
 use App\Modules\Auth\Http\Controllers\ApiTokenController;
 use App\Modules\Auth\Http\Controllers\FileController;
@@ -159,6 +160,11 @@ Route::middleware(['auth', 'verified', 'platform-admin'])->prefix('admin')->name
     Route::get('/settings', [AdminController::class, 'settings'])->name('settings.index');
     Route::post('/settings/maintenance', [AdminController::class, 'toggleMaintenance'])->name('settings.maintenance');
     Route::get('/security', [AdminController::class, 'security'])->name('security.index');
+
+    Route::get('/coupons', [CouponAdminController::class, 'index'])->name('coupons.index');
+    Route::post('/coupons', [CouponAdminController::class, 'store'])->name('coupons.store');
+    Route::patch('/coupons/{coupon}', [CouponAdminController::class, 'update'])->name('coupons.update');
+    Route::delete('/coupons/{coupon}', [CouponAdminController::class, 'destroy'])->name('coupons.destroy');
 
     Route::get('/blog', [BlogAdminController::class, 'index'])->name('blog.index');
     Route::get('/blog/create', [BlogAdminController::class, 'create'])->name('blog.create');

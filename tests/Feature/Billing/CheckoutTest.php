@@ -5,6 +5,7 @@ namespace Tests\Feature\Billing;
 use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\User;
+use App\Modules\Billing\Models\Coupon;
 use App\Modules\Billing\Providers\BillingGateway;
 use App\Modules\Tenancy\Enums\OrganizationRole;
 use App\Modules\Tenancy\Services\MembershipService;
@@ -95,7 +96,7 @@ class CheckoutTest extends TestCase
 
 final class FakeGateway implements BillingGateway
 {
-    public function checkout(Organization $organization, Plan $plan, string $interval): RedirectResponse
+    public function checkout(Organization $organization, Plan $plan, string $interval, ?Coupon $coupon = null): RedirectResponse
     {
         return Redirect::to('https://checkout.stripe.test/'.$plan->slug);
     }

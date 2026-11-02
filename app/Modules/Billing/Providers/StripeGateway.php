@@ -4,6 +4,7 @@ namespace App\Modules\Billing\Providers;
 
 use App\Models\Organization;
 use App\Models\Plan;
+use App\Modules\Billing\Models\Coupon;
 use Illuminate\Http\RedirectResponse;
 use InvalidArgumentException;
 use Laravel\Cashier\Subscription;
@@ -15,7 +16,7 @@ use Laravel\Cashier\Subscription;
  */
 final class StripeGateway implements BillingGateway
 {
-    public function checkout(Organization $organization, Plan $plan, string $interval): RedirectResponse
+    public function checkout(Organization $organization, Plan $plan, string $interval, ?Coupon $coupon = null): RedirectResponse
     {
         $priceId = $plan->priceId($interval);
 
@@ -35,12 +36,18 @@ final class StripeGateway implements BillingGateway
             ]);
         }
 
+        $sessionOptions = [
+            'success_url' => route('billing.show').'?checkout=success',
+            'cancel_url' => route('billing.show').'?checkout=cancelled',
+        ];
+
+        if ($coupon !== null && $coupon->stripe_coupon_id !== null) {
+            $sessionOptions['discounts'] = [['coupon' => $coupon->stripe_coupon_id]];
+        }
+
         return $organization
             ->newSubscription('default', $priceId)
-            ->checkout([
-                'success_url' => route('billing.show').'?checkout=success',
-                'cancel_url' => route('billing.show').'?checkout=cancelled',
-            ])->redirect();
+            ->checkout($sessionOptions)->redirect();
     }
 
     public function billingPortalUrl(Organization $organization, string $returnTo): string

@@ -4,6 +4,7 @@ namespace App\Modules\Billing\Providers;
 
 use App\Models\Organization;
 use App\Models\Plan;
+use App\Modules\Billing\Models\Coupon;
 use Illuminate\Http\RedirectResponse;
 use Laravel\Cashier\Subscription;
 
@@ -17,7 +18,7 @@ use Laravel\Cashier\Subscription;
  */
 interface BillingGateway
 {
-    public function checkout(Organization $organization, Plan $plan, string $interval): RedirectResponse;
+    public function checkout(Organization $organization, Plan $plan, string $interval, ?Coupon $coupon = null): RedirectResponse;
 
     public function billingPortalUrl(Organization $organization, string $returnTo): string;
 

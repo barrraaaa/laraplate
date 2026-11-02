@@ -1,3 +1,4 @@
+import FormError from '@/components/shared/form-error';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -8,6 +9,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { router } from '@inertiajs/react';
 import { Check, Minus } from 'lucide-react';
 import { useState } from 'react';
@@ -42,6 +44,8 @@ export default function PlanCard({
     const [billingInterval, setBillingInterval] = useState<
         'monthly' | 'yearly'
     >(interval);
+    const [coupon, setCoupon] = useState('');
+    const [couponError, setCouponError] = useState<string | undefined>();
 
     const featureFlags = Object.entries(plan.features.features ?? {});
     const quotas = Object.entries(plan.features.quotas ?? {});
@@ -49,8 +53,15 @@ export default function PlanCard({
     const checkout = () => {
         router.post(
             '/billing/checkout',
-            { plan_id: plan.id, interval: billingInterval },
-            { preserveScroll: true },
+            {
+                plan_id: plan.id,
+                interval: billingInterval,
+                coupon_code: coupon || undefined,
+            },
+            {
+                preserveScroll: true,
+                onError: (serverErrors) => setCouponError(serverErrors.coupon),
+            },
         );
     };
 
@@ -116,6 +127,18 @@ export default function PlanCard({
                                 {option}
                             </button>
                         ))}
+                    </div>
+                )}
+
+                {!plan.free && (
+                    <div className="space-y-1">
+                        <Input
+                            value={coupon}
+                            placeholder="Coupon code (optional)"
+                            className="h-8 text-xs"
+                            onChange={(e) => setCoupon(e.target.value)}
+                        />
+                        <FormError message={couponError} />
                     </div>
                 )}
             </CardContent>

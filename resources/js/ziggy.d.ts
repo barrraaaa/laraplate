@@ -224,6 +224,22 @@ declare module 'ziggy-js' {
         'admin.settings.index': [];
         'admin.settings.maintenance': [];
         'admin.security.index': [];
+        'admin.coupons.index': [];
+        'admin.coupons.store': [];
+        'admin.coupons.update': [
+            {
+                name: 'coupon';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'admin.coupons.destroy': [
+            {
+                name: 'coupon';
+                required: true;
+                binding: 'id';
+            },
+        ];
         'admin.blog.index': [];
         'admin.blog.create': [];
         'admin.blog.store': [];

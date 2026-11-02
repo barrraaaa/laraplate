@@ -4,11 +4,13 @@ namespace App\Modules\Billing\Services;
 
 use App\Models\Organization;
 use App\Models\Plan;
+use App\Modules\Billing\Models\Coupon;
 use App\Modules\Billing\Models\Invoice;
 use App\Modules\Billing\Models\Transaction;
 use App\Modules\Billing\Providers\BillingGateway;
 use App\Modules\Core\FeatureManager;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\ValidationException;
 use Laravel\Cashier\Subscription;
 
 /**
@@ -111,9 +113,30 @@ final class BillingService
             ->first();
     }
 
-    public function checkout(Organization $organization, Plan $plan, string $interval)
+    /**
+     * Validates an optional coupon and starts a checkout with it.
+     *
+     * @throws ValidationException
+     */
+    public function checkout(Organization $organization, Plan $plan, string $interval, ?string $couponCode = null)
     {
-        return $this->gateway->checkout($organization, $plan, $interval);
+        $coupon = null;
+
+        if ($couponCode !== null && $couponCode !== '') {
+            $coupon = Coupon::query()->where('code', $couponCode)->first();
+
+            if ($coupon === null || ! $coupon->isEligible($organization)) {
+                throw ValidationException::withMessages([
+                    'coupon' => 'This coupon is invalid, expired or already used.',
+                ]);
+            }
+
+            // Track the redemption attempt locally (unique per org);
+            // Stripe remains the payment source of truth.
+            $coupon->redeemedBy()->attach($organization);
+        }
+
+        return $this->gateway->checkout($organization, $plan, $interval, $coupon);
     }
 
     public function billingPortalUrl(Organization $organization, string $returnTo): string
