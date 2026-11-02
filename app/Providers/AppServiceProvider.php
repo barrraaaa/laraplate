@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Models\Organization;
+use App\Modules\Billing\Providers\BillingGateway;
+use App\Modules\Billing\Providers\StripeGateway;
 use App\Modules\Core\FeatureManager;
 use App\Modules\Tenancy\Listeners\AcceptPendingInvitation;
 use App\Modules\Tenancy\Listeners\CreatePersonalOrganization;
@@ -28,6 +30,10 @@ class AppServiceProvider extends ServiceProvider
 
         // Scoped: resolved fresh per request (Octane-safe).
         $this->app->scoped(OrganizationContext::class);
+
+        // Billing provider adapter — swap implementations (or fake it in
+        // tests) without touching domain code.
+        $this->app->bind(BillingGateway::class, StripeGateway::class);
     }
 
     /**

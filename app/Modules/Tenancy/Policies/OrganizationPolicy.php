@@ -38,6 +38,14 @@ class OrganizationPolicy
     }
 
     /**
+     * Manage billing (plans, checkout, cancellation) — owners and admins.
+     */
+    public function manageBilling(User $user, Organization $organization): bool
+    {
+        return $user->isOrganizationAdmin($organization);
+    }
+
+    /**
      * Ownership transfer — owner only.
      */
     public function transfer(User $user, Organization $organization): bool

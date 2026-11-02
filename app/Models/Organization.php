@@ -11,18 +11,35 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Cashier\Billable;
+use Laravel\Cashier\Subscription;
 
 /**
  * The tenant boundary: a workspace (team mode) or the invisible personal
  * organization behind single-user mode.
  */
-#[Fillable(['name', 'slug', 'personal', 'settings', 'created_by'])]
+#[Fillable(['name', 'slug', 'personal', 'settings', 'created_by', 'stripe_id', 'pm_type', 'pm_last_four', 'trial_ends_at'])]
 class Organization extends Model
 {
     /** @use HasFactory<OrganizationFactory> */
-    use HasFactory, SoftDeletes;
+    use Billable, HasFactory, SoftDeletes;
+
+    /**
+     * Cashier's default relation targets getForeignKey() (user_id-style
+     * tables); Laraplate bills organizations through a polymorphic
+     * billable column — this override is what makes $organization->
+     * subscription() / newSubscription() resolve correctly.
+     *
+     * @return MorphMany<Subscription, $this>
+     */
+    public function subscriptions(): MorphMany
+    {
+        return $this->morphMany(Subscription::class, 'billable')
+            ->orderByDesc('created_at');
+    }
 
     /**
      * Get the attributes that should be cast.

@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Modules\Billing\Http\Controllers\BillingController;
+use App\Modules\Billing\Http\Controllers\StripeWebhookController;
 use App\Modules\Tenancy\Http\Controllers\InvitationController;
 use App\Modules\Tenancy\Http\Controllers\MemberController;
 use App\Modules\Tenancy\Http\Controllers\OrganizationController;
@@ -58,5 +60,23 @@ Route::get('/invitations/{token}', [InvitationController::class, 'accept'])
 Route::post('/invitations/{token}/decline', [InvitationController::class, 'decline'])
     ->middleware('auth')
     ->name('invitations.decline');
+
+// Stripe webhooks — signature-verified by Cashier; exempt from CSRF.
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])
+    ->name('cashier.webhook');
+
+/*
+|--------------------------------------------------------------------------
+| Billing (PRD 5.5) — the active organization is the billable owner.
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/billing', [BillingController::class, 'show'])->name('billing.show');
+    Route::post('/billing/checkout', [BillingController::class, 'checkout'])->name('billing.checkout');
+    Route::post('/billing/cancel', [BillingController::class, 'cancel'])->name('billing.cancel');
+    Route::post('/billing/resume', [BillingController::class, 'resume'])->name('billing.resume');
+    Route::get('/billing/portal', [BillingController::class, 'portal'])->name('billing.portal');
+});
 
 require __DIR__.'/auth.php';

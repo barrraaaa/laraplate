@@ -92,6 +92,86 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Plans (sample catalog — replace with your own)
+    |--------------------------------------------------------------------------
+    |
+    | Seeded into the plans table by PlanSeeder (idempotent — re-seed after
+    | edits). Sample data, clearly marked for buyers. Paid plans reference
+    | Stripe price ids created in your Stripe dashboard (or via Cashier
+    | CLI); a plan with no price ids is free and needs no Stripe checkout.
+    |
+    */
+
+    'plans' => [
+        'free_slug' => 'free',
+
+        'catalog' => [
+            [
+                'name' => 'Starter',
+                'slug' => 'free',
+                'description' => 'For trying things out — no credit card required.',
+                'monthly_price_id' => null,
+                'yearly_price_id' => null,
+                'features' => [
+                    'features' => [
+                        'projects' => true,
+                        'attachments' => false,
+                    ],
+                    'quotas' => [
+                        'projects.max' => 3,
+                        'storage.mb' => 100,
+                    ],
+                ],
+            ],
+            [
+                'name' => 'Pro',
+                'slug' => 'pro',
+                'description' => 'For shipping real products.',
+                'monthly_price_id' => env('STRIPE_PRICE_PRO_MONTHLY'),
+                'yearly_price_id' => env('STRIPE_PRICE_PRO_YEARLY'),
+                'features' => [
+                    'features' => [
+                        'projects' => true,
+                        'attachments' => true,
+                    ],
+                    'quotas' => [
+                        'projects.max' => 25,
+                        'storage.mb' => 10240,
+                    ],
+                ],
+            ],
+            [
+                'name' => 'Business',
+                'slug' => 'business',
+                'description' => 'For teams at scale.',
+                'monthly_price_id' => env('STRIPE_PRICE_BUSINESS_MONTHLY'),
+                'yearly_price_id' => env('STRIPE_PRICE_BUSINESS_YEARLY'),
+                'features' => [
+                    'features' => [
+                        'projects' => true,
+                        'attachments' => true,
+                    ],
+                    'quotas' => [
+                        'projects.max' => null,
+                        'storage.mb' => 102400,
+                    ],
+                ],
+            ],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Usage metering
+    |--------------------------------------------------------------------------
+    */
+
+    'usage' => [
+        'period' => env('SAAS_USAGE_PERIOD', 'monthly'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Roles & permissions
     |--------------------------------------------------------------------------
     |
