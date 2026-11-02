@@ -13,8 +13,8 @@ tier purchased:
 
 | Tier | Launch price | What you get |
 |---|---|---|
-| **Starter** | $199 (list $299) | The full codebase, lifetime V1.x updates, unlimited products **for yourself**, Discord community access, partner discount codes |
-| **All-in** | $249 (list $349) | Everything in Starter, plus: **client-work license**, every future V1.x module before Starter, email support, priority community, deals bundle activation |
+| **Starter** | $199 (list $299) | The full codebase as a **ZIP download**, version updates by email, unlimited products **for yourself**, Discord community access, partner discount codes |
+| **All-in** | $249 (list $349) | Everything in Starter, plus: **private repo access with lifetime updates**, **client-work license**, every future V1.x module before Starter, email support, priority community, deals bundle activation |
 
 Both tiers are **pay once** — no subscription, no per-project fees.
 

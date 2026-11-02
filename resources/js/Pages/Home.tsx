@@ -4,6 +4,7 @@ import ThemeToggle from '@/components/shared/theme-toggle';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import TechLogoGrid from '@/features/marketing/tech-logo-grid';
 import { PageProps } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import {
@@ -96,6 +97,10 @@ const FEATURES = [
 
 const FAQ = [
     {
+        q: 'How is the code delivered?',
+        a: 'Starter arrives as a ZIP — updates land in your inbox. All-in includes private repo access, which is also how lifetime updates flow.',
+    },
+    {
         q: 'Is it a Laravel app or a library?',
         a: 'A full Laravel app you own the code of — fork it, modify it, ship products with it. Updates are merged manually; the docs explain how to keep custom modules mergeable.',
     },
@@ -177,45 +182,54 @@ export default function Home() {
             </header>
 
             <main className="flex-1">
-                <section className="mx-auto max-w-4xl px-4 py-20 text-center sm:py-28">
+                <section className="mx-auto max-w-6xl px-4 py-20 sm:py-28">
                     <motion.div
                         initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
+                        className="grid items-center gap-12 lg:grid-cols-2"
                     >
-                        <Badge variant="outline" className="mb-6">
-                            <BadgePercent className="mr-1.5 size-3.5" />
-                            $1,210+ in partner discounts included
-                        </Badge>
-                        <h1 className="text-4xl font-semibold tracking-tight sm:text-6xl">
-                            Ship your SaaS in a weekend
-                        </h1>
-                        <p className="text-muted-foreground mx-auto mt-5 max-w-2xl text-lg">
-                            The Laravel boilerplate that ships with tenancy,
-                            Stripe billing, an admin panel, SEO & blog,
-                            passwordless auth — everything boring, already
-                            built.
-                        </p>
-                        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                            <Button size="lg" asChild>
-                                <a href={buyStarter}>
-                                    Get{' '}
-                                    {import.meta.env.VITE_APP_NAME ||
-                                        'Laraplate'}{' '}
-                                    — $199
-                                    <ArrowRight className="ml-1.5 size-4" />
-                                </a>
-                            </Button>
-                            <Button size="lg" variant="outline" asChild>
-                                <Link href={route('register')}>
-                                    Try the live demo
-                                </Link>
-                            </Button>
+                        <div className="text-center lg:text-left">
+                            <Badge variant="outline" className="mb-6">
+                                <BadgePercent className="mr-1.5 size-3.5" />
+                                $1,210+ in partner discounts included
+                            </Badge>
+                            <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
+                                Ship your SaaS in a weekend
+                            </h1>
+                            <p className="text-muted-foreground mx-auto mt-5 max-w-2xl text-lg lg:mx-0">
+                                The Laravel boilerplate that ships with tenancy,
+                                Stripe billing, an admin panel, SEO & blog,
+                                passwordless auth — everything boring, already
+                                built.
+                            </p>
+                            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
+                                <Button size="lg" asChild>
+                                    <a href={buyStarter}>
+                                        Get{' '}
+                                        {import.meta.env.VITE_APP_NAME ||
+                                            'Laraplate'}{' '}
+                                        — $199
+                                        <ArrowRight className="ml-1.5 size-4" />
+                                    </a>
+                                </Button>
+                                <Button size="lg" variant="outline" asChild>
+                                    <Link href={route('register')}>
+                                        Try the live demo
+                                    </Link>
+                                </Button>
+                            </div>
+                            <p className="text-muted-foreground mt-4 text-xs">
+                                Pay once · build unlimited projects
+                            </p>
                         </div>
-                        <p className="text-muted-foreground mt-4 text-xs">
-                            Pay once · lifetime updates · build unlimited
-                            projects
-                        </p>
+
+                        <div>
+                            <p className="text-muted-foreground mb-4 text-center text-xs tracking-wide uppercase lg:text-left">
+                                Built on the stack you already trust
+                            </p>
+                            <TechLogoGrid />
+                        </div>
                     </motion.div>
                 </section>
 
@@ -273,11 +287,12 @@ export default function Home() {
                                     name: 'Starter',
                                     listPrice: '$299',
                                     price: '$199',
-                                    cta: 'Get Starter',
+                                    cta: 'Get Starter (ZIP)',
                                     href: buyStarter,
+                                    delivery: 'Delivered as a ZIP download',
                                     items: [
                                         'The full codebase',
-                                        'Lifetime V1.x updates',
+                                        'Version updates via email',
                                         'Unlimited products for you',
                                         'Discord community access',
                                         'All partner discount codes',
@@ -287,16 +302,18 @@ export default function Home() {
                                     name: 'All-in',
                                     listPrice: '$349',
                                     price: '$249',
-                                    cta: 'Get All-in',
+                                    cta: 'Get All-in (Repo)',
                                     href: buyAllIn,
                                     featured: true,
+                                    delivery:
+                                        'Private repo access + lifetime updates',
                                     items: [
                                         'Everything in Starter',
+                                        'Lifetime updates via repo access',
                                         'Client-work license',
                                         'Every future V1.x module first',
                                         'Email support',
                                         'Priority community channel',
-                                        'Deals bundle activation',
                                     ],
                                 },
                             ].map((tier) => (
@@ -328,6 +345,10 @@ export default function Home() {
                                                 USD
                                             </span>
                                         </div>
+
+                                        <p className="text-muted-foreground mt-3 text-xs">
+                                            {tier.delivery}
+                                        </p>
 
                                         <ul className="mt-6 space-y-2.5 text-sm">
                                             {tier.items.map((item) => (
