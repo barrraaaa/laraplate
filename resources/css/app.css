@@ -1,6 +1,10 @@
 @import "tailwindcss";
+
+/* Tailwind v4 auto-detection misses the TSX sources on some setups —
+   pin them explicitly so every utility class in resources/js compiles. */
+@source "../js";
+
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
 @plugin "@tailwindcss/forms";
 
