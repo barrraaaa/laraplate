@@ -15,6 +15,15 @@
         "ecmaVersion": "latest",
         "sourceType": "module"
     },
+    "ignorePatterns": ["ziggy.js"],
+    "overrides": [
+        {
+            "files": ["*.d.ts"],
+            "rules": {
+                "no-var": "off"
+            }
+        }
+    ],
     "rules": {
         "react/react-in-jsx-scope": "off",
         "react/prop-types": "off",

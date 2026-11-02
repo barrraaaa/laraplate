@@ -6,11 +6,17 @@
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
         <!-- Scripts -->
+        <script>
+            // Apply theme before hydration to avoid a flash of the wrong mode.
+            (function () {
+                const stored = localStorage.getItem('theme');
+                const dark = stored
+                    ? stored === 'dark'
+                    : window.matchMedia('(prefers-color-scheme: dark)').matches;
+                document.documentElement.classList.toggle('dark', dark);
+            })();
+        </script>
         @routes
         @viteReactRefresh
         @vite(['resources/js/app.tsx'])
