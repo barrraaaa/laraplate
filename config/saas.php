@@ -71,19 +71,9 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Community & store (sales page wiring)
+    | SEO defaults (used by the shared Seo component on public pages)
     |--------------------------------------------------------------------------
     */
-
-    'community' => [
-        'discord_url' => env('DISCORD_INVITE_URL'),
-        'leaderboard_url' => env('LEADERBOARD_URL'),
-    ],
-
-    'store' => [
-        'starter_url' => env('STORE_STARTER_URL'),
-        'all_in_url' => env('STORE_ALL_IN_URL'),
-    ],
 
     'seo' => [
         'title' => env('SEO_TITLE', 'Laraplate — Laravel SaaS Boilerplate'),
