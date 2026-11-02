@@ -121,6 +121,12 @@ Route::middleware('guest')->group(function () {
 
     Route::get('/auth/google/callback', [SocialAuthController::class, 'googleCallback'])
         ->name('auth.google.callback');
+
+    Route::get('/auth/github/redirect', [SocialAuthController::class, 'githubRedirect'])
+        ->name('auth.github.redirect');
+
+    Route::get('/auth/github/callback', [SocialAuthController::class, 'githubCallback'])
+        ->name('auth.github.callback');
 });
 
 /*

@@ -3,6 +3,7 @@
 namespace App\Modules\Auth\Http\Controllers;
 
 use App\Models\User;
+use App\Modules\Audit\Services\Auditing;
 use App\Modules\Auth\Services\MagicLinkService;
 use App\Modules\Core\FeatureManager;
 use App\Modules\Tenancy\Services\OrganizationService;
@@ -24,6 +25,7 @@ class SocialAuthController extends Controller
         private MagicLinkService $magicLinks,
         private OrganizationService $organizations,
         private FeatureManager $features,
+        private Auditing $auditing,
     ) {}
 
     public function send(Request $request): RedirectResponse
@@ -59,36 +61,79 @@ class SocialAuthController extends Controller
 
     public function googleRedirect(): \Symfony\Component\HttpFoundation\RedirectResponse
     {
-        abort_unless($this->googleConfigured(), 404);
+        abort_unless($this->providerConfigured('google'), 404);
 
         return Socialite::driver('google')->redirect();
     }
 
     public function googleCallback(Request $request): RedirectResponse
     {
-        abort_unless($this->googleConfigured(), 404);
+        abort_unless($this->providerConfigured('google'), 404);
 
         try {
-            $googleUser = Socialite::driver('google')->user();
+            $socialUser = Socialite::driver('google')->user();
         } catch (\Throwable) {
             return redirect()->route('login')->withErrors(['google' => 'Could not sign in with Google.']);
         }
 
+        return $this->loginSocialUser(
+            $request,
+            $socialUser->getEmail(),
+            $socialUser->getName(),
+            'google',
+        );
+    }
+
+    public function githubRedirect(): \Symfony\Component\HttpFoundation\RedirectResponse
+    {
+        abort_unless($this->providerConfigured('github'), 404);
+
+        return Socialite::driver('github')->redirect();
+    }
+
+    public function githubCallback(Request $request): RedirectResponse
+    {
+        abort_unless($this->providerConfigured('github'), 404);
+
+        try {
+            $socialUser = Socialite::driver('github')->user();
+        } catch (\Throwable) {
+            return redirect()->route('login')->withErrors(['github' => 'Could not sign in with GitHub.']);
+        }
+
+        // GitHub only returns the email when it is public on the profile.
+        if ($socialUser->getEmail() === null || $socialUser->getEmail() === '') {
+            return redirect()->route('login')->withErrors([
+                'github' => 'GitHub did not share your email — make it public on your profile, then try again.',
+            ]);
+        }
+
+        return $this->loginSocialUser(
+            $request,
+            $socialUser->getEmail(),
+            $socialUser->getName() ?? $socialUser->getNickname(),
+            'github',
+        );
+    }
+
+    private function loginSocialUser(Request $request, string $email, ?string $name, string $provider): RedirectResponse
+    {
         $user = User::query()->firstOrCreate(
-            ['email' => $googleUser->getEmail()],
+            ['email' => $email],
             [
-                'name' => $googleUser->getName() ?? strtok($googleUser->getEmail(), '@'),
+                'name' => $name ?? strtok($email, '@'),
                 'password' => bcrypt(Str::random(40)),
                 'email_verified_at' => now(),
             ],
         );
 
-        // Accounts linked via Google get verified mailbox status too.
+        // OAuth-linked accounts get verified mailbox status too.
         if ($user->email_verified_at === null) {
             $user->forceFill(['email_verified_at' => now()])->save();
         }
 
         $this->organizations->personalOrganizationFor($user);
+        $this->auditing->record('auth.'.$provider.'_login', subject: $user, actor: $user);
 
         auth()->login($user);
         $request->session()->regenerate();
@@ -96,10 +141,10 @@ class SocialAuthController extends Controller
         return redirect()->intended(route('dashboard'));
     }
 
-    private function googleConfigured(): bool
+    private function providerConfigured(string $provider): bool
     {
         return $this->features->enabled('social_login')
-            && filled(config('services.google.client_id'))
-            && filled(config('services.google.client_secret'));
+            && filled(config("services.{$provider}.client_id"))
+            && filled(config("services.{$provider}.client_secret"));
     }
 }

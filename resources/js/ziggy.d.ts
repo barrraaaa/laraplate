@@ -195,6 +195,8 @@ declare module 'ziggy-js' {
         ];
         'auth.google.redirect': [];
         'auth.google.callback': [];
+        'auth.github.redirect': [];
+        'auth.github.callback': [];
         'blog.index': [];
         'blog.show': [
             {

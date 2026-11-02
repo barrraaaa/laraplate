@@ -24,6 +24,8 @@ class AuthenticatedSessionController extends Controller
             'status' => session('status'),
             'canLoginWithGoogle' => filled(config('services.google.client_id'))
                 && app(FeatureManager::class)->enabled('social_login'),
+            'canLoginWithGitHub' => filled(config('services.github.client_id'))
+                && app(FeatureManager::class)->enabled('social_login'),
             'magicLinksEnabled' => app(FeatureManager::class)->enabled('magic_links'),
         ]);
     }

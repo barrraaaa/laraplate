@@ -18,6 +18,7 @@ class GoogleOAuthTest extends TestCase
     public function test_google_routes_are_hidden_without_credentials(): void
     {
         $this->get(route('auth.google.redirect'))->assertNotFound();
+        $this->get(route('auth.github.redirect'))->assertNotFound();
     }
 
     public function test_google_callback_creates_and_logs_in_the_user(): void
