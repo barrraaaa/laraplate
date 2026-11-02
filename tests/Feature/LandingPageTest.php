@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use Database\Seeders\PlanSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -10,17 +9,20 @@ class LandingPageTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_landing_renders_with_the_plan_catalog(): void
+    public function test_landing_renders_the_sales_page(): void
     {
-        $this->seed(PlanSeeder::class);
-
         $this->get('/')
             ->assertOk()
             ->assertInertia(fn ($page) => $page
                 ->component('Home')
-                ->has('plans', 3)
+                ->has('store')
                 ->where('canLogin', true)
                 ->where('canRegister', true));
+    }
+
+    public function test_deals_page_renders(): void
+    {
+        $this->get('/deals')->assertOk()->assertInertia(fn ($page) => $page->component('Deals'));
     }
 
     public function test_legal_placeholder_pages_render(): void

@@ -135,6 +135,25 @@ declare module 'ziggy-js' {
                 binding: 'id';
             },
         ];
+        'auth.magic.send': [];
+        'auth.magic.consume': [
+            {
+                name: 'token';
+                required: true;
+            },
+        ];
+        'auth.google.redirect': [];
+        'auth.google.callback': [];
+        'blog.index': [];
+        'blog.show': [
+            {
+                name: 'post';
+                required: true;
+                binding: 'slug';
+            },
+        ];
+        sitemap: [];
+        deals: [];
         'admin.dashboard': [];
         'admin.users.index': [];
         'admin.organizations.index': [];
@@ -143,6 +162,30 @@ declare module 'ziggy-js' {
         'admin.invoices.index': [];
         'admin.activity.index': [];
         'admin.health.index': [];
+        'admin.blog.index': [];
+        'admin.blog.create': [];
+        'admin.blog.store': [];
+        'admin.blog.edit': [
+            {
+                name: 'post';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'admin.blog.update': [
+            {
+                name: 'post';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'admin.blog.destroy': [
+            {
+                name: 'post';
+                required: true;
+                binding: 'id';
+            },
+        ];
         'notifications.read': [
             {
                 name: 'notification';

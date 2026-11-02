@@ -21,6 +21,7 @@ import {
     BarChart3,
     Building2,
     CreditCard,
+    FileText,
     HeartPulse,
     Inbox,
     Receipt,
@@ -68,6 +69,10 @@ const NAVIGATION: {
             { label: 'Invoices', href: '/admin/invoices', icon: Inbox },
             { label: 'Coupons', href: '/admin/coupons', icon: Tag },
         ],
+    },
+    {
+        section: 'Content',
+        items: [{ label: 'Blog', href: '/admin/blog', icon: FileText }],
     },
     {
         section: 'Platform',

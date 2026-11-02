@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    // ShipFast-style social login (config/saas.php -> features.social_login).
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI', '/auth/google/callback'),
+    ],
+
 ];

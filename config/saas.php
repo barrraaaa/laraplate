@@ -54,6 +54,40 @@ return [
         'api_tokens' => true,
         'webhooks' => false,
         'audit_logs' => true,
+        'social_login' => true,
+        'magic_links' => true,
+        'blog' => true,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Auth extras
+    |--------------------------------------------------------------------------
+    */
+
+    'auth' => [
+        'magic_link_ttl_minutes' => (int) env('SAAS_MAGIC_LINK_TTL', 15),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Community & store (sales page wiring)
+    |--------------------------------------------------------------------------
+    */
+
+    'community' => [
+        'discord_url' => env('DISCORD_INVITE_URL'),
+        'leaderboard_url' => env('LEADERBOARD_URL'),
+    ],
+
+    'store' => [
+        'starter_url' => env('STORE_STARTER_URL'),
+        'all_in_url' => env('STORE_ALL_IN_URL'),
+    ],
+
+    'seo' => [
+        'title' => env('SEO_TITLE', 'Laraplate — Laravel SaaS Boilerplate'),
+        'description' => env('SEO_DESCRIPTION', 'Production-oriented Laravel SaaS boilerplate: tenancy, Stripe billing, admin panel and more. Pay once — build unlimited projects.'),
     ],
 
     /*

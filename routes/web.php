@@ -1,13 +1,16 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Models\Plan;
+use App\Http\Controllers\SitemapController;
 use App\Modules\Admin\Http\Controllers\AdminController;
 use App\Modules\Admin\Http\Controllers\NotificationController;
 use App\Modules\Auth\Http\Controllers\ApiTokenController;
 use App\Modules\Auth\Http\Controllers\FileController;
+use App\Modules\Auth\Http\Controllers\SocialAuthController;
 use App\Modules\Billing\Http\Controllers\BillingController;
 use App\Modules\Billing\Http\Controllers\StripeWebhookController;
+use App\Modules\Blog\Http\Controllers\BlogAdminController;
+use App\Modules\Blog\Http\Controllers\BlogController;
 use App\Modules\Projects\Http\Controllers\ProjectController;
 use App\Modules\Tenancy\Http\Controllers\InvitationController;
 use App\Modules\Tenancy\Http\Controllers\MemberController;
@@ -22,16 +25,11 @@ Route::get('/', function () {
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
-        'plans' => Plan::query()
-            ->where('active', true)
-            ->orderBy('sort_order')
-            ->get(['id', 'name', 'description', 'features'])
-            ->map(fn ($plan) => [
-                'id' => $plan->id,
-                'name' => $plan->name,
-                'description' => $plan->description,
-                'features' => $plan->entitlements(),
-            ]),
+        'store' => [
+            'starter' => config('saas.store.starter_url'),
+            'allIn' => config('saas.store.all_in_url'),
+        ],
+        'communityUrl' => config('saas.community.discord_url'),
     ]);
 });
 
@@ -100,6 +98,41 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
+| Passwordless auth: magic links + Google OAuth (ShipFast pack).
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('guest')->group(function () {
+    Route::post('/auth/magic/send', [SocialAuthController::class, 'send'])
+        ->middleware('throttle:6,1')
+        ->name('auth.magic.send');
+
+    Route::get('/auth/magic/{token}', [SocialAuthController::class, 'consume'])
+        ->name('auth.magic.consume');
+
+    Route::get('/auth/google/redirect', [SocialAuthController::class, 'googleRedirect'])
+        ->name('auth.google.redirect');
+
+    Route::get('/auth/google/callback', [SocialAuthController::class, 'googleCallback'])
+        ->name('auth.google.callback');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Blog (SEO & blog module) + sitemap.
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{post:slug}', [BlogController::class, 'show'])->name('blog.show');
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
+Route::get('/deals', function () {
+    return Inertia::render('Deals');
+})->name('deals');
+
+/*
+|--------------------------------------------------------------------------
 | Admin panel (PRD 5.11) — platform administration.
 |--------------------------------------------------------------------------
 */
@@ -113,6 +146,13 @@ Route::middleware(['auth', 'verified', 'platform-admin'])->prefix('admin')->name
     Route::get('/invoices', [AdminController::class, 'invoices'])->name('invoices.index');
     Route::get('/activity', [AdminController::class, 'activity'])->name('activity.index');
     Route::get('/health', [AdminController::class, 'health'])->name('health.index');
+
+    Route::get('/blog', [BlogAdminController::class, 'index'])->name('blog.index');
+    Route::get('/blog/create', [BlogAdminController::class, 'create'])->name('blog.create');
+    Route::post('/blog', [BlogAdminController::class, 'store'])->name('blog.store');
+    Route::get('/blog/{post}/edit', [BlogAdminController::class, 'edit'])->name('blog.edit');
+    Route::patch('/blog/{post}', [BlogAdminController::class, 'update'])->name('blog.update');
+    Route::delete('/blog/{post}', [BlogAdminController::class, 'destroy'])->name('blog.destroy');
 });
 
 /*

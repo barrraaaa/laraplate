@@ -1,7 +1,7 @@
 # Laraplate Commercial License
 
 > TEMPLATE — have this document reviewed by your counsel before first
-> sale. Placeholder amounts mirror the product's indicative price band.
+> sale. Launch pricing below matches the sales page placeholders.
 
 Copyright (c) 2026 Laraplate
 
@@ -11,33 +11,34 @@ tier purchased:
 
 ## License tiers
 
-| Tier | Price (indicative) | What you may build |
+| Tier | Launch price | What you get |
 |---|---|---|
-| **Standard** | $79 one-time | One (1) end product you own or operate |
-| **Team** | $149 one-time | Unlimited products for one organization / its employees |
-| **Agency** | $199 one-time | Client work: one licensed seat per client project |
+| **Starter** | $199 (list $299) | The full codebase, lifetime V1.x updates, unlimited products **for yourself**, Discord community access, partner discount codes |
+| **All-in** | $249 (list $349) | Everything in Starter, plus: **client-work license**, every future V1.x module before Starter, email support, priority community, deals bundle activation |
 
-## Permissions under every tier
+Both tiers are **pay once** — no subscription, no per-project fees.
+
+## Permissions (both tiers)
 
 - Use the software to build and sell your own SaaS products
-- Modify the source code for your products
-- Use it as the base of internal tools
+- Modify the source code without restriction
+- Keep a fork for internal tooling
 
-## Restrictions (all tiers)
+## Restrictions
 
 - You may **not** resell, sublicense, redistribute or open-source the
-  boilerplate itself (or a trivial derivative of it) — including "white
-  label" boilerplate re-sales
+  boilerplate itself (or a trivial derivative of it) — including
+  white-label boilerplate re-sales
 - You may not remove license notices or misrepresent authorship of the
   boilerplate's core
-- A single Standard license may not power multiple unrelated products
+- Client projects require the All-in tier
 
-## Updates & support
+## Updates
 
-- Purchases include bug-fix updates for the current major version
-  (V1.x), delivered through the purchase channel
-- Support scope and the update policy are stated on the sales page at
-  the time of purchase
+- Lifetime means the V1.x line for the tier purchased, delivered through
+  the purchase channel (typically email + the community changelog feed)
+- The update policy for revisions is stated on the sales page at purchase
+  time
 
 ## Warranty
 

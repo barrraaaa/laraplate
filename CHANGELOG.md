@@ -3,6 +3,26 @@
 All notable changes to Laraplate are documented in this file.
 Format: [Keep a Changelog](https://keepachangelog.com) + [SemVer](https://semver.org).
 
+## [Unreleased] — ShipFast pack
+
+### Added
+- Passwordless **magic links** (single-use hashed tokens, short TTL,
+  account-autocreate with mailbox-proven verification)
+- **Google OAuth** login/link via Socialite (config-gated, disabled
+  automatically without credentials)
+- **SEO & blog module**: posts CRUD in the admin, public /blog with
+  per-post SEO meta, hand-rolled `/sitemap.xml`
+- Sales landing per the ShipFast playbook: feature checklist, two-tier
+  Starter/All-in pricing ($299/$199, $349/$249), FAQ, store-URL wiring,
+  partner **Deals** page ($1,210 bundle sample), community links
+- ChatGPT prompt pack (docs/PROMPTS.md), community playbook
+  (docs/COMMUNITY.md), Mailgun env + guide wiring
+- Motion-powered landing animations
+
+### Changed
+- LICENSE.md restructured to Starter/All-in with lifetime updates and
+  unlimited-projects terms
+
 ## [1.0.0] - 2026-11-02
 
 Initial release — the MVP scope of the PRD (`laravel_saas_boilerplate_prd_v1`).
