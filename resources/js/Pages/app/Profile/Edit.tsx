@@ -7,7 +7,7 @@ import UpdatePasswordForm from '@/features/settings/profile/update-password-form
 import UpdateProfileInformationForm from '@/features/settings/profile/update-profile-information-form';
 import { PageProps } from '@/types';
 import { Head, Link } from '@inertiajs/react';
-import { KeyRound, ShieldCheck } from 'lucide-react';
+import { KeyRound, ShieldCheck, Webhook } from 'lucide-react';
 
 export default function Edit({
     mustVerifyEmail,
@@ -60,6 +60,23 @@ export default function Edit({
                             <Link href={route('api-tokens.index')}>
                                 <KeyRound className="mr-1.5 size-4" />
                                 Manage tokens
+                            </Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardContent className="flex items-center justify-between p-6">
+                        <div>
+                            <h2 className="text-lg font-medium">Webhooks</h2>
+                            <p className="text-muted-foreground mt-1 text-sm">
+                                Receive signed events at your endpoint.
+                            </p>
+                        </div>
+                        <Button variant="outline" size="sm" asChild>
+                            <Link href={route('webhooks.index')}>
+                                <Webhook className="mr-1.5 size-4" />
+                                Manage webhooks
                             </Link>
                         </Button>
                     </CardContent>

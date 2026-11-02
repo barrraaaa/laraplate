@@ -20,7 +20,10 @@ final class FeatureManager
 
     public function enabled(string $feature): bool
     {
-        return (bool) ($this->features[$feature] ?? false);
+        // Config-first: runtime config changes (and config caching) take
+        // effect without re-binding the singleton. The constructor array
+        // remains the fallback for direct instantiation.
+        return (bool) config("saas.features.{$feature}", $this->features[$feature] ?? false);
     }
 
     public function disabled(string $feature): bool

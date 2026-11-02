@@ -3,6 +3,21 @@
 All notable changes to Laraplate are documented in this file.
 Format: [Keep a Changelog](https://keepachangelog.com) + [SemVer](https://semver.org).
 
+## [Unreleased] — V1.2
+
+### Added
+- **Outbound webhooks**: org-scoped endpoint management (URLs, event
+  subscriptions, encrypted per-endpoint secrets, rotation), HMAC-SHA256
+  signing with documented verification, queued delivery with bounded
+  retries + backoff, per-endpoint delivery log with manual retries,
+  admin overview screen
+- **Usage alerts**: one notification per (metric, period) once usage
+  crosses the configured threshold (default 80%), delivered to org
+  admins via in-app + optional email
+- **S3-compatible storage guide** (docs/STORAGE.md) + signed-URL serving
+  through provider temporary URLs when the private disk uses the s3 driver
+- Audit logs: actor + date-range filters and CSV export in the admin
+
 ## [Unreleased] — ShipFast pack
 
 ### Added

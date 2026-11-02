@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Modules\Tenancy\Enums\OrganizationRole;
+use App\Modules\Webhooks\Services\WebhookDispatcher;
 use App\Notifications\VerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -42,7 +43,20 @@ class User extends Authenticatable implements MustVerifyEmail
         // Account deletion (PRD 5.1): the personal workspace dies with its
         // user; team organizations survive via created_by -> null,
         // ownership transfer safeguards land with the full tenancy module.
-        static::deleting(fn (User $user): ?bool => $user->personalOrganization()?->delete());
+        static::deleting(function (User $user): ?bool {
+            $organizations = $user->organizations()->get();
+            $dispatcher = app(WebhookDispatcher::class);
+
+            foreach ($organizations as $organization) {
+                $dispatcher->dispatch($organization, 'user.deleted', [
+                    'id' => $user->id,
+                    'email' => $user->email,
+                    'deleted_at' => now()->toIso8601String(),
+                ]);
+            }
+
+            return $user->personalOrganization()?->delete();
+        });
     }
 
     /**

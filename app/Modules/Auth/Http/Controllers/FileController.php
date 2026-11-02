@@ -2,6 +2,7 @@
 
 namespace App\Modules\Auth\Http\Controllers;
 
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Storage;
@@ -14,7 +15,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class FileController extends Controller
 {
-    public function show(Request $request, string $path): StreamedResponse
+    public function show(Request $request, string $path): StreamedResponse|RedirectResponse
     {
         // Defense in depth: never allow traversal outside private root.
         if (str_contains($path, '..')) {
@@ -24,6 +25,16 @@ class FileController extends Controller
         $disk = Storage::disk('private');
 
         abort_unless($disk->exists($path), 404);
+
+        // On S3-compatible drivers serve provider-signed URLs instead of
+        // proxying bytes through the app (docs/STORAGE.md).
+        if (config('filesystems.disks.private.driver') === 's3') {
+            return redirect()->away(
+                $disk->temporaryUrl($path, now()->addHour(), [
+                    'ResponseContentDisposition' => 'inline',
+                ]),
+            );
+        }
 
         return $disk->response($path);
     }

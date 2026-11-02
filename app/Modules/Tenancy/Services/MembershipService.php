@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Modules\Audit\Services\Auditing;
 use App\Modules\Tenancy\Enums\OrganizationRole;
 use App\Modules\Tenancy\Exceptions\LastOwnerRemovalBlockedException;
+use App\Modules\Webhooks\Services\WebhookDispatcher;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -24,7 +25,10 @@ use Spatie\Permission\PermissionRegistrar;
  */
 final class MembershipService
 {
-    public function __construct(private Auditing $auditing) {}
+    public function __construct(
+        private Auditing $auditing,
+        private WebhookDispatcher $webhooks,
+    ) {}
 
     public function join(Organization $organization, User $user, OrganizationRole $role): Membership
     {
@@ -38,6 +42,12 @@ final class MembershipService
 
             $this->auditing->record('organization.member_joined', $organization, $user, [
                 'role' => $role->value,
+            ]);
+
+            $this->webhooks->dispatch($organization, 'organization.member_joined', [
+                'user' => ['id' => $user->id, 'email' => $user->email, 'name' => $user->name],
+                'role' => $role->value,
+                'created_at' => now()->toIso8601String(),
             ]);
 
             return $membership;

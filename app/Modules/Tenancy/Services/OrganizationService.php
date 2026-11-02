@@ -6,6 +6,7 @@ use App\Models\Organization;
 use App\Models\User;
 use App\Modules\Audit\Services\Auditing;
 use App\Modules\Tenancy\Enums\OrganizationRole;
+use App\Modules\Webhooks\Services\WebhookDispatcher;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -18,6 +19,7 @@ final class OrganizationService
     public function __construct(
         private MembershipService $memberships,
         private Auditing $auditing,
+        private WebhookDispatcher $webhooks,
     ) {}
 
     /**
@@ -67,6 +69,13 @@ final class OrganizationService
             $this->memberships->join($organization, $owner, OrganizationRole::Owner);
 
             $this->auditing->record('organization.created', $organization, $organization);
+
+            $this->webhooks->dispatch($organization, 'organization.created', [
+                'id' => $organization->id,
+                'name' => $organization->name,
+                'slug' => $organization->slug,
+                'created_at' => $organization->created_at?->toIso8601String(),
+            ]);
 
             return $organization;
         });

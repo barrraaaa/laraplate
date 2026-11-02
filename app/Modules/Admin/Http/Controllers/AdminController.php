@@ -8,6 +8,8 @@ use App\Modules\Audit\Models\AuditEvent;
 use App\Modules\Billing\Models\Invoice;
 use App\Modules\Billing\Models\Transaction;
 use App\Modules\Core\FeatureManager;
+use App\Modules\Webhooks\Models\WebhookDelivery;
+use App\Modules\Webhooks\Models\WebhookEndpoint;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -212,6 +214,20 @@ class AdminController extends Controller
             $query->where('action', $action);
         }
 
+        if ($actor = $request->string('actor')->toString()) {
+            $query->whereHas('actor', fn ($q) => $q
+                ->where('name', 'like', "%{$actor}%")
+                ->orWhere('email', 'like', "%{$actor}%"));
+        }
+
+        if ($from = $request->string('from')->toString()) {
+            $query->whereDate('created_at', '>=', $from);
+        }
+
+        if ($to = $request->string('to')->toString()) {
+            $query->whereDate('created_at', '<=', $to);
+        }
+
         $actions = AuditEvent::query()
             ->distinct()
             ->orderBy('action')
@@ -229,8 +245,69 @@ class AdminController extends Controller
                     'createdAt' => $event->created_at?->toIso8601String(),
                 ]),
             'actions' => $actions,
-            'filters' => ['action' => $action],
+            'filters' => [
+                'action' => $action,
+                'actor' => $actor,
+                'from' => $from,
+                'to' => $to,
+            ],
         ]);
+    }
+
+    public function exportActivity(Request $request): \Illuminate\Http\Response
+    {
+        $query = AuditEvent::query()
+            ->with(['actor:id,name,email', 'organization:id,name'])
+            ->orderByDesc('id');
+
+        if ($action = $request->string('action')->toString()) {
+            $query->where('action', $action);
+        }
+
+        if ($actor = $request->string('actor')->toString()) {
+            $query->whereHas('actor', fn ($q) => $q
+                ->where('name', 'like', "%{$actor}%")
+                ->orWhere('email', 'like', "%{$actor}%"));
+        }
+
+        if ($from = $request->string('from')->toString()) {
+            $query->whereDate('created_at', '>=', $from);
+        }
+
+        if ($to = $request->string('to')->toString()) {
+            $query->whereDate('created_at', '<=', $to);
+        }
+
+        $rows = [];
+
+        $query->chunk(500, function ($events) use (&$rows): void {
+            foreach ($events as $event) {
+                $rows[] = [
+                    $event->id,
+                    $event->action,
+                    $event->actor !== null ? $event->actor->name : 'system',
+                    $event->actor !== null ? $event->actor->email : '',
+                    ($organizationName = $event->organization?->name) !== null ? $organizationName : '',
+                    $event->ip_address ?? '',
+                    $event->created_at?->toIso8601String() ?? '',
+                ];
+            }
+        });
+
+        $csv = fopen('php://temp', 'r+');
+        fputcsv($csv, ['ID', 'Action', 'Actor', 'Actor Email', 'Organization', 'IP', 'Created At']);
+
+        foreach ($rows as $row) {
+            fputcsv($csv, array_map(fn ($cell) => (string) $cell, $row));
+        }
+
+        rewind($csv);
+        $contents = stream_get_contents($csv);
+        fclose($csv);
+
+        return response($contents)
+            ->header('Content-Type', 'text/csv; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="audit-log-'.now()->format('Y-m-d').'.csv"');
     }
 
     public function health(): Response
@@ -332,6 +409,41 @@ class AdminController extends Controller
         }
 
         return back()->with('status', 'maintenance-toggled');
+    }
+
+    public function webhooks(): Response
+    {
+        return Inertia::render('admin/Webhooks', [
+            'endpoints' => WebhookEndpoint::query()
+                ->with('organization:id,name')
+                ->withCount('deliveries')
+                ->orderByDesc('created_at')
+                ->paginate(20)
+                ->through(fn ($endpoint) => [
+                    'id' => $endpoint->id,
+                    'organization' => ($endpointOrganization = $endpoint->organization) !== null ? $endpointOrganization->name : '—',
+                    'url' => $endpoint->url,
+                    'events' => $endpoint->events,
+                    'active' => $endpoint->active,
+                    'deliveriesCount' => $endpoint->deliveries_count,
+                    'createdAt' => $endpoint->created_at?->toIso8601String(),
+                ]),
+            'recentDeliveries' => WebhookDelivery::query()
+                ->with('endpoint:id,url,organization_id')
+                ->with('endpoint.organization:id,name')
+                ->orderByDesc('created_at')
+                ->limit(25)
+                ->get()
+                ->map(fn ($delivery) => [
+                    'id' => $delivery->id,
+                    'organization' => ($deliveryOrganization = $delivery->endpoint?->organization) !== null ? $deliveryOrganization->name : '—',
+                    'event' => $delivery->event,
+                    'attemptCount' => $delivery->attempt_count,
+                    'responseCode' => $delivery->response_code,
+                    'delivered' => $delivery->delivered_at !== null,
+                    'createdAt' => $delivery->created_at?->toIso8601String(),
+                ]),
+        ]);
     }
 
     public function security(): Response

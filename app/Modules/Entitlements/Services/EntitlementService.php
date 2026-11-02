@@ -7,6 +7,7 @@ use App\Models\Plan;
 use App\Modules\Billing\Services\BillingService;
 use App\Modules\Core\FeatureManager;
 use App\Modules\Entitlements\Models\UsageRecord;
+use App\Modules\Entitlements\Notifications\UsageAlert;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -108,8 +109,43 @@ final class EntitlementService
 
             $record->increment('quantity', max(0, $quantity));
 
+            $this->maybeAlertThreshold($organization, $record->fresh());
+
             return $record->fresh();
         });
+    }
+
+    /**
+     * Fires one UsageAlert per (metric, period) once the configured
+     * threshold is crossed (PRD 5.6 P1).
+     */
+    private function maybeAlertThreshold(Organization $organization, UsageRecord $record): void
+    {
+        $quota = $this->quota($organization, $record->metric);
+        $threshold = (float) config('saas.usage.alert_threshold', 0.8);
+
+        if ($quota === null || $quota === 0 || $record->alerted_at !== null) {
+            return;
+        }
+
+        if ($record->quantity / $quota < $threshold) {
+            return;
+        }
+
+        $record->forceFill(['alerted_at' => now()])->save();
+
+        $notification = new UsageAlert(
+            $record->metric,
+            (int) $record->quantity,
+            $quota,
+            $organization->name,
+        );
+
+        $organization->memberships()
+            ->with('user')
+            ->get()
+            ->filter(fn ($membership) => $membership->isOwner() || $membership->isAdmin())
+            ->each(fn ($membership) => $membership->user->notify($notification));
     }
 
     private function enforcing(): bool

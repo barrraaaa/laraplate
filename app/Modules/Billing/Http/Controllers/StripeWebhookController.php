@@ -8,6 +8,7 @@ use App\Modules\Billing\Models\Invoice;
 use App\Modules\Billing\Models\Transaction;
 use App\Modules\Billing\Notifications\PaymentFailed;
 use App\Modules\Billing\Notifications\PaymentSucceeded;
+use App\Modules\Webhooks\Services\WebhookDispatcher;
 use Laravel\Cashier\Http\Controllers\WebhookController;
 use Laravel\Cashier\Subscription;
 
@@ -21,7 +22,10 @@ use Laravel\Cashier\Subscription;
  */
 class StripeWebhookController extends WebhookController
 {
-    public function __construct(private Auditing $auditing) {}
+    public function __construct(
+        private Auditing $auditing,
+        private WebhookDispatcher $webhooks,
+    ) {}
 
     protected function handleInvoicePaymentSucceeded(array $payload)
     {
@@ -87,6 +91,16 @@ class StripeWebhookController extends WebhookController
                 'amount' => $transaction->amount,
                 'currency' => $transaction->currency,
                 'event_type' => $transaction->event_type,
+            ]);
+
+            $event = $status === 'succeeded' ? 'payment.succeeded' : 'payment.failed';
+
+            $this->webhooks->dispatch($organization, $event, [
+                'amount' => $transaction->amount,
+                'currency' => $transaction->currency,
+                'status' => $transaction->status,
+                'invoice_id' => $object['id'] ?? null,
+                'created_at' => $transaction->created_at?->toIso8601String(),
             ]);
         }
     }

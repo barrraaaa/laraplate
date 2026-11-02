@@ -212,6 +212,7 @@ declare module 'ziggy-js' {
         'admin.transactions.index': [];
         'admin.invoices.index': [];
         'admin.activity.index': [];
+        'admin.activity.export': [];
         'admin.health.index': [];
         'admin.api-tokens.index': [];
         'admin.api-tokens.revoke': [
@@ -225,6 +226,7 @@ declare module 'ziggy-js' {
         'admin.settings.index': [];
         'admin.settings.maintenance': [];
         'admin.security.index': [];
+        'admin.webhooks.index': [];
         'admin.coupons.index': [];
         'admin.coupons.store': [];
         'admin.coupons.update': [
@@ -284,6 +286,36 @@ declare module 'ziggy-js' {
         'api-tokens.destroy': [
             {
                 name: 'token';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'webhooks.index': [];
+        'webhooks.store': [];
+        'webhooks.update': [
+            {
+                name: 'endpoint';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'webhooks.regenerate-secret': [
+            {
+                name: 'endpoint';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'webhooks.destroy': [
+            {
+                name: 'endpoint';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'webhooks.retry': [
+            {
+                name: 'delivery';
                 required: true;
                 binding: 'id';
             },

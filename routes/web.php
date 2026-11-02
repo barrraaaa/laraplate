@@ -18,6 +18,7 @@ use App\Modules\Tenancy\Http\Controllers\InvitationController;
 use App\Modules\Tenancy\Http\Controllers\MemberController;
 use App\Modules\Tenancy\Http\Controllers\OrganizationController;
 use App\Modules\Tenancy\Http\Controllers\OrganizationRoleController;
+use App\Modules\Webhooks\Http\Controllers\WebhookController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -155,6 +156,7 @@ Route::middleware(['auth', 'verified', 'platform-admin'])->prefix('admin')->name
     Route::get('/transactions', [AdminController::class, 'transactions'])->name('transactions.index');
     Route::get('/invoices', [AdminController::class, 'invoices'])->name('invoices.index');
     Route::get('/activity', [AdminController::class, 'activity'])->name('activity.index');
+    Route::get('/activity/export', [AdminController::class, 'exportActivity'])->name('activity.export');
     Route::get('/health', [AdminController::class, 'health'])->name('health.index');
     Route::get('/api-tokens', [AdminController::class, 'apiTokens'])->name('api-tokens.index');
     Route::delete('/api-tokens/{token}', [AdminController::class, 'revokeToken'])->name('api-tokens.revoke');
@@ -162,6 +164,7 @@ Route::middleware(['auth', 'verified', 'platform-admin'])->prefix('admin')->name
     Route::get('/settings', [AdminController::class, 'settings'])->name('settings.index');
     Route::post('/settings/maintenance', [AdminController::class, 'toggleMaintenance'])->name('settings.maintenance');
     Route::get('/security', [AdminController::class, 'security'])->name('security.index');
+    Route::get('/webhooks', [AdminController::class, 'webhooks'])->name('webhooks.index');
 
     Route::get('/coupons', [CouponAdminController::class, 'index'])->name('coupons.index');
     Route::post('/coupons', [CouponAdminController::class, 'store'])->name('coupons.store');
@@ -208,6 +211,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/settings/api-tokens', [ApiTokenController::class, 'index'])->name('api-tokens.index');
     Route::post('/settings/api-tokens', [ApiTokenController::class, 'store'])->name('api-tokens.store');
     Route::delete('/settings/api-tokens/{token}', [ApiTokenController::class, 'destroy'])->name('api-tokens.destroy');
+
+    Route::get('/settings/webhooks', [WebhookController::class, 'index'])->name('webhooks.index');
+    Route::post('/settings/webhooks', [WebhookController::class, 'store'])->name('webhooks.store');
+    Route::patch('/settings/webhooks/{endpoint}', [WebhookController::class, 'update'])->name('webhooks.update');
+    Route::post('/settings/webhooks/{endpoint}/regenerate-secret', [WebhookController::class, 'regenerateSecret'])->name('webhooks.regenerate-secret');
+    Route::delete('/settings/webhooks/{endpoint}', [WebhookController::class, 'destroy'])->name('webhooks.destroy');
+    Route::post('/settings/webhooks/{delivery}/retry', [WebhookController::class, 'retry'])->name('webhooks.retry');
 });
 
 // Private files served through signed, expiring URLs (PRD 5.10).

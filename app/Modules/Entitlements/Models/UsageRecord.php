@@ -34,6 +34,7 @@ class UsageRecord extends Model
             'quantity' => 'integer',
             'period_start' => 'date',
             'period_end' => 'date',
+            'alerted_at' => 'datetime',
         ];
     }
 

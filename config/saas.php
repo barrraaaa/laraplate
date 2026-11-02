@@ -52,7 +52,7 @@ return [
         'billing' => true,
         'usage_limits' => true,
         'api_tokens' => true,
-        'webhooks' => false,
+        'webhooks' => true,
         'audit_logs' => true,
         'social_login' => true,
         'magic_links' => true,
@@ -202,6 +202,7 @@ return [
 
     'usage' => [
         'period' => env('SAAS_USAGE_PERIOD', 'monthly'),
+        'alert_threshold' => (float) env('SAAS_USAGE_ALERT_THRESHOLD', 0.8),
     ],
 
     /*
@@ -212,6 +213,23 @@ return [
 
     'api_tokens' => [
         'abilities' => ['read', 'write'],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Outbound webhooks (PRD 5.8 P1)
+    |--------------------------------------------------------------------------
+    */
+
+    'webhooks' => [
+        'events' => [
+            'user.created' => 'A new user registered.',
+            'user.deleted' => 'A user deleted their account.',
+            'organization.created' => 'A shared organization was created.',
+            'organization.member_joined' => 'A member joined an organization.',
+            'payment.succeeded' => 'A payment was received.',
+            'payment.failed' => 'A payment failed.',
+        ],
     ],
 
     /*

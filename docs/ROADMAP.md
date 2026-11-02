@@ -11,7 +11,7 @@ next releases layer on top.
 - Notification preferences
 - Coupon management (admin)
 
-## V1.2
+## V1.2 — shipped ✅
 
 - Outbound webhooks: endpoint registration, signing, delivery logs, retries
 - Expanded audit-log UI (filter, export)

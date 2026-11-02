@@ -14,6 +14,7 @@ use App\Modules\Tenancy\Listeners\CreatePersonalOrganization;
 use App\Modules\Tenancy\Listeners\WelcomeNewUser;
 use App\Modules\Tenancy\OrganizationContext;
 use App\Modules\Tenancy\Policies\OrganizationPolicy;
+use App\Modules\Webhooks\Support\WebhookFanOut;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -66,6 +67,7 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(Registered::class, CreatePersonalOrganization::class);
         Event::listen(Registered::class, AcceptPendingInvitation::class);
         Event::listen(Registered::class, WelcomeNewUser::class);
+        Event::listen(Registered::class, [WebhookFanOut::class, 'onRegistered']);
         Event::subscribe(AuditEventsSubscriber::class);
 
         // Module policies live outside App\Policies — register explicitly.
