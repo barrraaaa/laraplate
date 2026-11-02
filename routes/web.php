@@ -8,6 +8,7 @@ use App\Modules\Admin\Http\Controllers\NotificationController;
 use App\Modules\Auth\Http\Controllers\ApiTokenController;
 use App\Modules\Auth\Http\Controllers\FileController;
 use App\Modules\Auth\Http\Controllers\SocialAuthController;
+use App\Modules\Auth\Http\Controllers\TwoFactorController;
 use App\Modules\Billing\Http\Controllers\BillingController;
 use App\Modules\Billing\Http\Controllers\StripeWebhookController;
 use App\Modules\Blog\Http\Controllers\BlogAdminController;
@@ -51,6 +52,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::patch('/profile/notification-preferences', [ProfileController::class, 'updateNotificationPreferences'])->name('profile.notification-preferences');
 });
 
 /*
@@ -183,6 +185,23 @@ Route::middleware(['auth', 'verified', 'platform-admin'])->prefix('admin')->name
 Route::middleware(['auth'])->group(function () {
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Two-factor authentication (PRD 5.1 P1) — TOTP + recovery codes.
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/two-factor/challenge', [TwoFactorController::class, 'challenge'])->name('two-factor.challenge');
+    Route::post('/two-factor/verify', [TwoFactorController::class, 'verify'])->name('two-factor.verify');
+
+    Route::get('/settings/two-factor', [TwoFactorController::class, 'index'])->name('two-factor.index');
+    Route::post('/settings/two-factor/enable', [TwoFactorController::class, 'enable'])->name('two-factor.enable');
+    Route::post('/settings/two-factor/confirm', [TwoFactorController::class, 'confirm'])->name('two-factor.confirm');
+    Route::post('/settings/two-factor/regenerate', [TwoFactorController::class, 'regenerate'])->name('two-factor.regenerate');
+    Route::post('/settings/two-factor/disable', [TwoFactorController::class, 'disable'])->name('two-factor.disable');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

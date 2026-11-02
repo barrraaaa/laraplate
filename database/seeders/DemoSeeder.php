@@ -7,12 +7,14 @@ use App\Models\Plan;
 use App\Models\User;
 use App\Modules\Billing\Models\Invoice;
 use App\Modules\Billing\Models\Transaction;
+use App\Modules\Blog\Models\Post;
 use App\Modules\Entitlements\Models\UsageRecord;
 use App\Modules\Tenancy\Enums\OrganizationRole;
 use App\Modules\Tenancy\Services\MembershipService;
 use App\Modules\Tenancy\Services\OrganizationService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Laravel\Cashier\Subscription;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Throwable;
@@ -62,6 +64,49 @@ class DemoSeeder extends Seeder
 
             $this->seedUsage($organization);
             $this->seedBilling($organization, $sample['sub'][0], $sample['sub'][1], $index);
+        }
+
+        $this->seedBlogPosts();
+    }
+
+    private function seedBlogPosts(): void
+    {
+        if (Post::query()->exists()) {
+            return;
+        }
+
+        $author = User::query()->where('email', 'demo@laraplate.test')->first()
+            ?? User::query()->first();
+
+        $posts = [
+            [
+                'title' => 'Ship your first SaaS weekend plan',
+                'excerpt' => 'A practical checklist from `laraplate:status` to the first paid checkout.',
+                'body' => "The boilerplate removes the boilerplate.\n\n1. Install and run laraplate:status.\n2. Wire Stripe keys and price ids.\n3. Configure SAAS_MODE.\n4. Replace the Projects module with your own product.\n\nFrom a fresh clone to a live checkout this is an afternoon of work, not a month.",
+            ],
+            [
+                'title' => 'Single-user vs team mode — how to choose',
+                'excerpt' => 'The tenancy modes explained, with the hybrid sweet spot.',
+                'body' => "SAAS_MODE=single hides all organization UI while keeping the tenancy anchor.\n\nTeam mode builds workspace collaboration; hybrid gives every user both.\n\nThe billing owner is always the organization, so switching modes later never migrates data.",
+            ],
+            [
+                'title' => 'Tenancy isolation: why tampering fails',
+                'excerpt' => 'Global scopes plus automatic attribution, walked through.',
+                'body' => "BelongsToOrganization does two things: every read is scoped to the active organization, and every write inherits organization_id.\n\nCross-tenant tests replay the classic attacks: swapping IDs in URLs, patch payloads and route hints. They all 404 or 403.\n\nThat, plus last-owner protection, is the whole isolation story.",
+            ],
+        ];
+
+        foreach ($posts as $post) {
+            Post::create([
+                'author_id' => $author?->id,
+                'title' => $post['title'],
+                'slug' => Str::slug($post['title']),
+                'excerpt' => $post['excerpt'],
+                'body' => $post['body'],
+                'status' => 'published',
+                'published_at' => now()->subDays(rand(1, 20)),
+                'meta_description' => $post['excerpt'],
+            ]);
         }
     }
 

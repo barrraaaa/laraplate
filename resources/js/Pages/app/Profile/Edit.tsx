@@ -2,16 +2,22 @@ import AppLayout from '@/components/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import DeleteUserForm from '@/features/settings/profile/delete-user-form';
+import NotificationPreferences from '@/features/settings/profile/notification-preferences';
 import UpdatePasswordForm from '@/features/settings/profile/update-password-form';
 import UpdateProfileInformationForm from '@/features/settings/profile/update-profile-information-form';
 import { PageProps } from '@/types';
 import { Head, Link } from '@inertiajs/react';
-import { KeyRound } from 'lucide-react';
+import { KeyRound, ShieldCheck } from 'lucide-react';
 
 export default function Edit({
     mustVerifyEmail,
     status,
-}: PageProps<{ mustVerifyEmail: boolean; status?: string }>) {
+    notificationPreferences,
+}: PageProps<{
+    mustVerifyEmail: boolean;
+    status?: string;
+    notificationPreferences?: Record<string, boolean>;
+}>) {
     return (
         <AppLayout>
             <Head title="Profile" />
@@ -56,6 +62,43 @@ export default function Edit({
                                 Manage tokens
                             </Link>
                         </Button>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardContent className="flex items-center justify-between p-6">
+                        <div>
+                            <h2 className="text-lg font-medium">
+                                Two-factor authentication
+                            </h2>
+                            <p className="text-muted-foreground mt-1 text-sm">
+                                Protect your account with a TOTP authenticator
+                                app.
+                            </p>
+                        </div>
+                        <Button variant="outline" size="sm" asChild>
+                            <Link href={route('two-factor.index')}>
+                                <ShieldCheck className="mr-1.5 size-4" />
+                                Set up 2FA
+                            </Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardContent className="p-6">
+                        <h2 className="text-lg font-medium">
+                            Notification preferences
+                        </h2>
+                        <p className="text-muted-foreground mt-1 text-sm">
+                            Choose which events send you email — in-app
+                            notifications stay on.
+                        </p>
+                        <div className="mt-5 max-w-xl">
+                            <NotificationPreferences
+                                preferences={notificationPreferences ?? {}}
+                            />
+                        </div>
                     </CardContent>
                 </Card>
 

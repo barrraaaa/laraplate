@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Modules\Admin\Http\Middleware\EnsurePlatformAdmin;
+use App\Modules\Auth\Http\Middleware\TwoFactorChallenge;
 use App\Modules\Entitlements\Exceptions\QuotaExceededException;
 use App\Modules\Tenancy\Exceptions\LastOwnerRemovalBlockedException;
 use App\Modules\Tenancy\Http\Middleware\EnsureOrganizationsEnabled;
@@ -27,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->web(append: [
             SetOrganizationContext::class,
+            TwoFactorChallenge::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);

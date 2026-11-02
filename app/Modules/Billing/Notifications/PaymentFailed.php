@@ -25,7 +25,13 @@ class PaymentFailed extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        $channels = ['database'];
+
+        if ($notifiable->wantsEmail('payment_failure')) {
+            $channels[] = 'mail';
+        }
+
+        return $channels;
     }
 
     /**

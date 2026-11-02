@@ -15,6 +15,7 @@ declare module 'ziggy-js' {
         'profile.edit': [];
         'profile.update': [];
         'profile.destroy': [];
+        'profile.notification-preferences': [];
         'organizations.index': [];
         'organizations.store': [];
         'organizations.show': [
@@ -271,6 +272,13 @@ declare module 'ziggy-js' {
             },
         ];
         'notifications.read-all': [];
+        'two-factor.challenge': [];
+        'two-factor.verify': [];
+        'two-factor.index': [];
+        'two-factor.enable': [];
+        'two-factor.confirm': [];
+        'two-factor.regenerate': [];
+        'two-factor.disable': [];
         'api-tokens.index': [];
         'api-tokens.store': [];
         'api-tokens.destroy': [

@@ -27,7 +27,13 @@ class PaymentSucceeded extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        $channels = ['database'];
+
+        if ($notifiable->wantsEmail('payment_success')) {
+            $channels[] = 'mail';
+        }
+
+        return $channels;
     }
 
     /**

@@ -12,12 +12,23 @@ Format: [Keep a Changelog](https://keepachangelog.com) + [SemVer](https://semver
   automatically without credentials)
 - **SEO & blog module**: posts CRUD in the admin, public /blog with
   per-post SEO meta, hand-rolled `/sitemap.xml`
+- **Two-factor authentication**: TOTP enrollment with QR provisioning,
+  recovery codes, challenge middleware whitelisted for auth routes
+- **Coupon management**: admin CRUD with percent/amount rules, expiry,
+  caps, Stripe coupon linkage, checkout redemption (unique per org)
+- **Custom organization roles** (PRD 5.4 P1): owners/admins compose roles
+  from the permission catalog and assign them to members
+- **Notification preferences**: per-user email channels
+  (payment receipts/failures, product news)
+- Admin blueprint completion: System Settings (+ maintenance toggle),
+  Security (role catalog), API Tokens overview, Notifications stream
 - Sales landing per the ShipFast playbook: feature checklist, two-tier
   Starter/All-in pricing ($299/$199, $349/$249), FAQ, store-URL wiring,
   partner **Deals** page ($1,210 bundle sample), community links
 - ChatGPT prompt pack (docs/PROMPTS.md), community playbook
   (docs/COMMUNITY.md), Mailgun env + guide wiring
-- Motion-powered landing animations
+- Motion-powered landing animations; sample published blog posts in the
+  demo seeder
 
 ### Changed
 - LICENSE.md restructured to Starter/All-in with lifetime updates and

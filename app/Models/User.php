@@ -25,6 +25,10 @@ use Spatie\Permission\Traits\HasRoles;
  * @property Carbon|null $email_verified_at
  * @property bool $is_platform_admin
  * @property string|null $avatar_path
+ * @property string|null $two_factor_secret
+ * @property Carbon|null $two_factor_confirmed_at
+ * @property array<int, string>|null $two_factor_recovery_codes
+ * @property array<string, bool>|null $notification_preferences
  */
 #[Fillable(['name', 'email', 'password', 'avatar_path'])]
 #[Hidden(['password', 'remember_token'])]
@@ -52,7 +56,22 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_platform_admin' => 'boolean',
+            'two_factor_secret' => 'encrypted',
+            'two_factor_confirmed_at' => 'datetime',
+            'two_factor_recovery_codes' => 'encrypted:array',
+            'notification_preferences' => 'array',
         ];
+    }
+
+    /**
+     * Non-essential notification channels (PRD 5.7 P1). Defaults to
+     * enabled when no preference is stored.
+     */
+    public function wantsEmail(string $key): bool
+    {
+        $preferences = $this->notification_preferences ?? [];
+
+        return (bool) ($preferences[$key] ?? true);
     }
 
     /** @return HasMany<Membership, $this> */

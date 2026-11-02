@@ -26,6 +26,7 @@ class ProfileController extends Controller
         return Inertia::render('app/Profile/Edit', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
+            'notificationPreferences' => $request->user()->notification_preferences ?? [],
         ]);
     }
 
@@ -76,6 +77,24 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    /**
+     * Notification preferences (PRD 5.7 P1): per-user email channels.
+     */
+    public function updateNotificationPreferences(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'payment_success' => ['required', 'boolean'],
+            'payment_failure' => ['required', 'boolean'],
+            'product_news' => ['required', 'boolean'],
+        ]);
+
+        $request->user()->forceFill([
+            'notification_preferences' => $data,
+        ])->save();
+
+        return Redirect::route('profile.edit');
     }
 
     /**
