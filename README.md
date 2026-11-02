@@ -1,58 +1,54 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laraplate
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**Production-oriented Laravel SaaS boilerplate** — authentication, tenancy, billing, entitlements and an admin panel, ready for single-user and team-based subscription products.
 
-## About Laravel
+Built on Laravel 13 · Inertia + React 19 + TypeScript · Tailwind CSS 4 + shadcn/ui · Stripe (Cashier).
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Feature modules
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Area | Highlights |
+|---|---|
+| Identity | Email/password auth, verification, password reset, session basics, account deletion, queued mail |
+| Tenancy | `SAAS_MODE=single\|team\|hybrid`, organizations, invitations (hashed tokens, expiry), context switching, ownership transfer with last-owner protection |
+| Authorization | Baseline roles (owner/admin/member/viewer) + granular, organization-scoped permissions (spatie) with a self-healing catalog |
+| Billing | Stripe via a provider-adapter boundary: plans, checkout, webhooks (idempotent), cancel/resume/portal, invoice + transaction mirrors |
+| Entitlements | Feature flags, quotas, usage recording, limit enforcement — one API (`can` / `quota` / `usage` / `record` / `overLimit`) |
+| Admin panel | Platform dashboard (MRR, signups chart), users, organizations, subscriptions, transactions, invoices, audit stream, system health |
+| Operations | Audit log (tenant + actor aware), in-app notifications, Sanctum API tokens with abilities, rate limiting, spatie health checks |
+| Example module | A complete **Projects** slice — the documented copy-me pattern (tenancy, policy, quota enforcement, UI) |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Quick start
 
 ```bash
-composer require laravel/boost --dev
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --force
+php artisan laraplate:demo            # plans, roles + labeled demo data
+npm install && npm run build
 
-php artisan boost:install
+php artisan serve                     # http://localhost:8000
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Demo login (after `laraplate:demo`): `demo@laraplate.test` / `password` (platform admin).
 
-## Contributing
+Verify the install: `php artisan laraplate:status`. Run a worker for queued mail: `php artisan queue:work`.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Documentation
 
-## Code of Conduct
+- [Installation](docs/INSTALLATION.md) — requirements, fresh-clone steps, troubleshooting
+- [Configuration](docs/CONFIGURATION.md) — `config/saas.php`, env vars, roles & permissions
+- [Billing setup](docs/BILLING.md) — Stripe keys, prices, webhooks, going live
+- [Tenancy](docs/TENANCY.md) — modes, isolation model, invitations
+- [Customization](docs/CUSTOMIZATION.md) — frontend architecture, adding a module, branding
+- [Testing](docs/TESTING.md) — running suites, quality gates, webhook fixtures
+- [Deployment](docs/DEPLOYMENT.md) — Laravel Cloud & VPS, workers, scheduler, backups
+- [Roadmap](docs/ROADMAP.md)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Quality
 
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+`composer check` runs Pint + PHPStan (level 5) + the PHPUnit suite (>90 tests). CI matrix: PHP 8.3/8.4, SQLite + MySQL.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Commercial. See [LICENSE.md](LICENSE.md) for tiers and terms.

@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Modules\Admin\Http\Middleware\EnsurePlatformAdmin;
+use App\Modules\Entitlements\Exceptions\QuotaExceededException;
 use App\Modules\Tenancy\Exceptions\LastOwnerRemovalBlockedException;
 use App\Modules\Tenancy\Http\Middleware\EnsureOrganizationsEnabled;
 use App\Modules\Tenancy\Http\Middleware\SetOrganizationContext;
@@ -49,5 +50,13 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             return back()->withErrors(['role' => $e->getMessage()]);
+        });
+
+        $exceptions->render(function (QuotaExceededException $e, Request $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json(['message' => $e->getMessage()], 422);
+            }
+
+            return back()->withErrors(['name' => $e->getMessage()]);
         });
     })->create();

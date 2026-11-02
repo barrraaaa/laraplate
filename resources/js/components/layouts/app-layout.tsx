@@ -42,6 +42,11 @@ export default function AppLayout({
             current: url === route('dashboard'),
         },
         {
+            label: 'Projects',
+            href: route('projects.index'),
+            current: url.startsWith('/projects'),
+        },
+        {
             label: 'Billing',
             href: route('billing.show'),
             current: url.startsWith('/billing'),

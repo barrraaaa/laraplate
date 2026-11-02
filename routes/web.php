@@ -1,12 +1,14 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Models\Plan;
 use App\Modules\Admin\Http\Controllers\AdminController;
 use App\Modules\Admin\Http\Controllers\NotificationController;
 use App\Modules\Auth\Http\Controllers\ApiTokenController;
 use App\Modules\Auth\Http\Controllers\FileController;
 use App\Modules\Billing\Http\Controllers\BillingController;
 use App\Modules\Billing\Http\Controllers\StripeWebhookController;
+use App\Modules\Projects\Http\Controllers\ProjectController;
 use App\Modules\Tenancy\Http\Controllers\InvitationController;
 use App\Modules\Tenancy\Http\Controllers\MemberController;
 use App\Modules\Tenancy\Http\Controllers\OrganizationController;
@@ -20,8 +22,26 @@ Route::get('/', function () {
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
+        'plans' => Plan::query()
+            ->where('active', true)
+            ->orderBy('sort_order')
+            ->get(['id', 'name', 'description', 'features'])
+            ->map(fn ($plan) => [
+                'id' => $plan->id,
+                'name' => $plan->name,
+                'description' => $plan->description,
+                'features' => $plan->entitlements(),
+            ]),
     ]);
 });
+
+Route::get('/terms', function () {
+    return Inertia::render('legal/Terms');
+})->name('terms');
+
+Route::get('/privacy', function () {
+    return Inertia::render('legal/Privacy');
+})->name('privacy');
 
 Route::get('/dashboard', function () {
     return Inertia::render('app/Dashboard');
@@ -64,6 +84,19 @@ Route::get('/invitations/{token}', [InvitationController::class, 'accept'])
 Route::post('/invitations/{token}/decline', [InvitationController::class, 'decline'])
     ->middleware('auth')
     ->name('invitations.decline');
+
+/*
+|--------------------------------------------------------------------------
+| Example module — Projects (PRD 5.12): the documented extension pattern.
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
+    Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
+    Route::patch('/projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
+    Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
+});
 
 /*
 |--------------------------------------------------------------------------

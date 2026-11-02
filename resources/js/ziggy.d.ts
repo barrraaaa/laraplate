@@ -9,6 +9,8 @@ declare module 'ziggy-js' {
         ];
         'cashier.webhook': [];
         'sanctum.csrf-cookie': [];
+        terms: [];
+        privacy: [];
         dashboard: [];
         'profile.edit': [];
         'profile.update': [];
@@ -115,6 +117,22 @@ declare module 'ziggy-js' {
             {
                 name: 'token';
                 required: true;
+            },
+        ];
+        'projects.index': [];
+        'projects.store': [];
+        'projects.update': [
+            {
+                name: 'project';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'projects.destroy': [
+            {
+                name: 'project';
+                required: true;
+                binding: 'id';
             },
         ];
         'admin.dashboard': [];

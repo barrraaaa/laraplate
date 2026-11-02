@@ -7,6 +7,8 @@ use App\Modules\Audit\Support\AuditEventsSubscriber;
 use App\Modules\Billing\Providers\BillingGateway;
 use App\Modules\Billing\Providers\StripeGateway;
 use App\Modules\Core\FeatureManager;
+use App\Modules\Projects\Models\Project;
+use App\Modules\Projects\Policies\ProjectPolicy;
 use App\Modules\Tenancy\Listeners\AcceptPendingInvitation;
 use App\Modules\Tenancy\Listeners\CreatePersonalOrganization;
 use App\Modules\Tenancy\Listeners\WelcomeNewUser;
@@ -68,6 +70,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Module policies live outside App\Policies — register explicitly.
         Gate::policy(Organization::class, OrganizationPolicy::class);
+        Gate::policy(Project::class, ProjectPolicy::class);
 
         // System health checks (admin System Health screen + CI).
         Health::checks([
