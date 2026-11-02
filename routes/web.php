@@ -15,6 +15,7 @@ use App\Modules\Projects\Http\Controllers\ProjectController;
 use App\Modules\Tenancy\Http\Controllers\InvitationController;
 use App\Modules\Tenancy\Http\Controllers\MemberController;
 use App\Modules\Tenancy\Http\Controllers\OrganizationController;
+use App\Modules\Tenancy\Http\Controllers\OrganizationRoleController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -68,6 +69,12 @@ Route::middleware(['auth', 'verified', 'organizations-enabled'])->group(function
     Route::patch('/organizations/{organization}/members/{member}', [MemberController::class, 'update'])->name('organizations.members.update');
     Route::delete('/organizations/{organization}/members/{member}', [MemberController::class, 'destroy'])->name('organizations.members.destroy');
     Route::post('/organizations/{organization}/transfer-ownership', [MemberController::class, 'transferOwnership'])->name('organizations.transfer-ownership');
+
+    Route::get('/organizations/{organization}/roles', [OrganizationRoleController::class, 'index'])->name('organizations.roles.index');
+    Route::post('/organizations/{organization}/roles', [OrganizationRoleController::class, 'store'])->name('organizations.roles.store');
+    Route::patch('/organizations/{organization}/roles/{role}', [OrganizationRoleController::class, 'update'])->name('organizations.roles.update');
+    Route::delete('/organizations/{organization}/roles/{role}', [OrganizationRoleController::class, 'destroy'])->name('organizations.roles.destroy');
+    Route::post('/organizations/{organization}/members/{member}/role-assignment', [OrganizationRoleController::class, 'assign'])->name('organizations.members.assign-role');
 
     Route::post('/organizations/{organization}/invitations', [InvitationController::class, 'store'])->name('organizations.invitations.store');
     Route::post('/organizations/{organization}/invitations/{invitation}/resend', [InvitationController::class, 'resend'])->name('organizations.invitations.resend');
@@ -146,6 +153,12 @@ Route::middleware(['auth', 'verified', 'platform-admin'])->prefix('admin')->name
     Route::get('/invoices', [AdminController::class, 'invoices'])->name('invoices.index');
     Route::get('/activity', [AdminController::class, 'activity'])->name('activity.index');
     Route::get('/health', [AdminController::class, 'health'])->name('health.index');
+    Route::get('/api-tokens', [AdminController::class, 'apiTokens'])->name('api-tokens.index');
+    Route::delete('/api-tokens/{token}', [AdminController::class, 'revokeToken'])->name('api-tokens.revoke');
+    Route::get('/notifications', [AdminController::class, 'notifications'])->name('notifications.index');
+    Route::get('/settings', [AdminController::class, 'settings'])->name('settings.index');
+    Route::post('/settings/maintenance', [AdminController::class, 'toggleMaintenance'])->name('settings.maintenance');
+    Route::get('/security', [AdminController::class, 'security'])->name('security.index');
 
     Route::get('/blog', [BlogAdminController::class, 'index'])->name('blog.index');
     Route::get('/blog/create', [BlogAdminController::class, 'create'])->name('blog.create');

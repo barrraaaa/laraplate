@@ -49,7 +49,10 @@ final class MembershipService
         return DB::transaction(function () use ($membership, $role): Membership {
             $this->guardRoleChange($membership, $role);
 
-            $membership->update(['role' => $role->value]);
+            $membership->forceFill([
+                'role' => $role->value,
+                'custom_role_id' => null,
+            ])->save();
             $this->syncPermissions($membership);
 
             $this->auditing->record('organization.member_role_changed', $membership->organization, $membership->user, [
@@ -134,6 +137,27 @@ final class MembershipService
      */
     public function syncPermissions(Membership $membership): void
     {
+        // Custom org roles (PRD 5.4 P1) override the baseline mirror.
+        if ($membership->custom_role_id !== null) {
+            app(PermissionRegistrar::class)->setPermissionsTeamId($membership->organization_id);
+            app(PermissionRegistrar::class)->forgetCachedPermissions();
+            app(PermissionRegistrar::class)->setPermissionsTeamId($membership->organization_id);
+
+            $customRole = Role::query()
+                ->whereKey($membership->custom_role_id)
+                ->where('organization_id', $membership->organization_id)
+                ->first();
+
+            if ($customRole !== null) {
+                $membership->user->syncRoles([$customRole->name]);
+
+                return;
+            }
+
+            // Custom role vanished — fall back to the baseline mirror.
+            $membership->forceFill(['custom_role_id' => null])->save();
+        }
+
         // Team context drives spatie's team-scoped role resolution — set it
         // before any role materialization so the role is created under the
         // right organization.
@@ -150,6 +174,32 @@ final class MembershipService
         $registrar->setPermissionsTeamId($membership->organization_id);
 
         $membership->user->syncRoles([$roleName]);
+    }
+
+    /**
+     * Assign an organization-defined custom role (PRD 5.4 P1). The curated
+     * membership role stays as the policy-hierarchy source; permissions
+     * now resolve from the custom role.
+     */
+    public function assignCustomRole(Membership $membership, \Spatie\Permission\Contracts\Role $role): void
+    {
+        throw_unless(
+            (int) $role->getAttribute('organization_id') === (int) $membership->organization_id,
+            InvalidArgumentException::class,
+            'The role must belong to the same organization.',
+        );
+
+        $membership->forceFill(['custom_role_id' => $role->id])->save();
+        $this->syncPermissions($membership);
+    }
+
+    /**
+     * Revert a membership to the baseline permission mirror.
+     */
+    public function clearCustomRole(Membership $membership): void
+    {
+        $membership->forceFill(['custom_role_id' => null])->save();
+        $this->syncPermissions($membership);
     }
 
     /**

@@ -19,12 +19,16 @@ import {
     Activity,
     ArrowLeft,
     BarChart3,
+    Bell,
     Building2,
     CreditCard,
     FileText,
     HeartPulse,
     Inbox,
+    KeyRound,
     Receipt,
+    Settings2,
+    ShieldCheck,
     Tag,
     Users,
     Webhook,
@@ -40,6 +44,11 @@ const NAVIGATION: {
         items: [
             { label: 'Dashboard', href: '/admin', icon: BarChart3 },
             { label: 'System Health', href: '/admin/health', icon: HeartPulse },
+            {
+                label: 'System Settings',
+                href: '/admin/settings',
+                icon: Settings2,
+            },
         ],
     },
     {
@@ -77,6 +86,13 @@ const NAVIGATION: {
     {
         section: 'Platform',
         items: [
+            { label: 'Security', href: '/admin/security', icon: ShieldCheck },
+            { label: 'API Tokens', href: '/admin/api-tokens', icon: KeyRound },
+            {
+                label: 'Notifications',
+                href: '/admin/notifications',
+                icon: Bell,
+            },
             { label: 'Webhooks', href: '/admin/webhooks', icon: Webhook },
             { label: 'Activity Logs', href: '/admin/activity', icon: Activity },
         ],

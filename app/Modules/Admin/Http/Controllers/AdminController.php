@@ -7,14 +7,20 @@ use App\Models\User;
 use App\Modules\Audit\Models\AuditEvent;
 use App\Modules\Billing\Models\Invoice;
 use App\Modules\Billing\Models\Transaction;
+use App\Modules\Core\FeatureManager;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Laravel\Cashier\Subscription;
+use Laravel\Sanctum\PersonalAccessToken;
 use Spatie\Health\Models\HealthCheckResultHistoryItem;
+use Spatie\Permission\Models\Role;
 
 /**
  * Platform admin panel (PRD 5.11) — operational views over users,
@@ -249,6 +255,107 @@ class AdminController extends Controller
                 'summary' => $item->short_summary,
                 'checkedAt' => $item->created_at?->toIso8601String(),
             ])->values(),
+        ]);
+    }
+
+    public function apiTokens(): Response
+    {
+        return Inertia::render('admin/ApiTokens', [
+            'tokens' => PersonalAccessToken::query()
+                ->with('tokenable:id,name,email')
+                ->orderByDesc('created_at')
+                ->paginate(20)
+                ->through(fn ($token) => [
+                    'id' => $token->id,
+                    'name' => $token->name,
+                    'abilities' => $token->abilities,
+                    'owner' => (string) ($token->tokenable?->getAttribute('name') ?? '—'),
+                    'ownerEmail' => $token->tokenable?->getAttribute('email'),
+                    'lastUsedAt' => $token->last_used_at?->toIso8601String(),
+                    'createdAt' => $token->created_at?->toIso8601String(),
+                ]),
+        ]);
+    }
+
+    public function revokeToken(PersonalAccessToken $token): RedirectResponse
+    {
+        $token->delete();
+
+        return back()->with('status', 'token-revoked');
+    }
+
+    public function notifications(): Response
+    {
+        return Inertia::render('admin/Notifications', [
+            'stream' => DatabaseNotification::query()
+                ->with('notifiable:id,name,email')
+                ->orderByDesc('created_at')
+                ->limit(100)
+                ->get()
+                ->map(fn ($notification) => [
+                    'id' => $notification->id,
+                    'user' => (string) ($notification->notifiable?->getAttribute('name') ?? '—'),
+                    'userEmail' => $notification->notifiable?->getAttribute('email'),
+                    'title' => (string) ($notification->data['title'] ?? 'Notification'),
+                    'read' => $notification->read_at !== null,
+                    'createdAt' => $notification->created_at?->toIso8601String(),
+                ])->values(),
+        ]);
+    }
+
+    public function settings(): Response
+    {
+        return Inertia::render('admin/Settings', [
+            'app' => [
+                'name' => config('app.name'),
+                'environment' => app()->environment(),
+                'url' => config('app.url'),
+                'debug' => (bool) config('app.debug'),
+                'maintenance' => app()->isDownForMaintenance(),
+                'php' => PHP_VERSION,
+            ],
+            'saas' => [
+                'mode' => config('saas.mode'),
+                'features' => app(FeatureManager::class)->all(),
+            ],
+            'queueDriver' => config('queue.default'),
+            'mailDriver' => config('mail.default'),
+        ]);
+    }
+
+    public function toggleMaintenance(Request $request): RedirectResponse
+    {
+        if (app()->isDownForMaintenance()) {
+            Artisan::call('up');
+        } else {
+            Artisan::call('down', ['--redirect' => '/']);
+        }
+
+        return back()->with('status', 'maintenance-toggled');
+    }
+
+    public function security(): Response
+    {
+        $roles = Role::query()
+            ->orderBy('organization_id')
+            ->orderBy('name')
+            ->get();
+
+        $organizations = Organization::query()->pluck('name', 'id');
+
+        return Inertia::render('admin/Security', [
+            'roles' => $roles->map(fn ($role) => [
+                'id' => $role->id,
+                'name' => $role->name,
+                'organization' => ($teamId = (int) $role->getAttribute('organization_id')) !== 0
+                    ? ($organizations[$teamId] ?? '—')
+                    : 'Global',
+                'permissions' => $role->permissions()->pluck('name')->values(),
+                'assignedTo' => DB::table('model_has_roles')
+                    ->where('role_id', $role->id)
+                    ->count(),
+            ])->values(),
+            'catalog' => (array) config('saas.roles', []),
         ]);
     }
 }

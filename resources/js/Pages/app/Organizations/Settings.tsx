@@ -25,7 +25,7 @@ import InviteMemberDialog from '@/features/teams/invite-member-dialog';
 import MemberRow, { type MemberItem } from '@/features/teams/member-row';
 import TransferOwnershipDialog from '@/features/teams/transfer-ownership-dialog';
 import { PageProps } from '@/types';
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
 export type InvitationItem = {
@@ -148,6 +148,15 @@ export default function Settings() {
                             </CardDescription>
                         </div>
                         <div className="flex items-center gap-2">
+                            {can.manageMembers && (
+                                <Button variant="outline" size="sm" asChild>
+                                    <Link
+                                        href={`/organizations/${organization.id}/roles`}
+                                    >
+                                        Custom roles
+                                    </Link>
+                                </Button>
+                            )}
                             {can.transfer && members.length > 1 && (
                                 <TransferOwnershipDialog
                                     organizationId={organization.id}

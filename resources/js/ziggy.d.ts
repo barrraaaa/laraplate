@@ -76,6 +76,56 @@ declare module 'ziggy-js' {
                 binding: 'id';
             },
         ];
+        'organizations.roles.index': [
+            {
+                name: 'organization';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'organizations.roles.store': [
+            {
+                name: 'organization';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'organizations.roles.update': [
+            {
+                name: 'organization';
+                required: true;
+                binding: 'id';
+            },
+            {
+                name: 'role';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'organizations.roles.destroy': [
+            {
+                name: 'organization';
+                required: true;
+                binding: 'id';
+            },
+            {
+                name: 'role';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'organizations.members.assign-role': [
+            {
+                name: 'organization';
+                required: true;
+                binding: 'id';
+            },
+            {
+                name: 'member';
+                required: true;
+                binding: 'id';
+            },
+        ];
         'organizations.invitations.store': [
             {
                 name: 'organization';
@@ -162,6 +212,18 @@ declare module 'ziggy-js' {
         'admin.invoices.index': [];
         'admin.activity.index': [];
         'admin.health.index': [];
+        'admin.api-tokens.index': [];
+        'admin.api-tokens.revoke': [
+            {
+                name: 'token';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'admin.notifications.index': [];
+        'admin.settings.index': [];
+        'admin.settings.maintenance': [];
+        'admin.security.index': [];
         'admin.blog.index': [];
         'admin.blog.create': [];
         'admin.blog.store': [];
