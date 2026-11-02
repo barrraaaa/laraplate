@@ -59,11 +59,11 @@ export default function SocialAuthButtons({
 
             {(!canLoginWithGoogle || !canLoginWithGitHub) && (
                 <p className="text-muted-foreground mt-3 text-center text-xs">
-                    Social sign-in aktif di produksi — set{' '}
+                    Social sign-in is ready to configure — set{' '}
                     <code className="font-mono">
                         {missingKeys(canLoginWithGoogle, canLoginWithGitHub)}
                     </code>{' '}
-                    di .env untuk mengaktifkannya.
+                    in .env to enable it.
                 </p>
             )}
         </>
