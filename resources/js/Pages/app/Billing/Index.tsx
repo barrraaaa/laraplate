@@ -1,6 +1,10 @@
 import AppLayout from '@/components/layouts/app-layout';
+import StatusBadge, {
+    invoiceStatusTone,
+    subscriptionStatusTone,
+    transactionStatusTone,
+} from '@/components/shared/status-badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -149,16 +153,13 @@ export default function Index() {
                                 </CardDescription>
                             </div>
                             <div className="flex items-center gap-3">
-                                <Badge
-                                    variant={
-                                        subscription.status === 'active' ||
-                                        subscription.status === 'trialing'
-                                            ? 'default'
-                                            : 'destructive'
-                                    }
+                                <StatusBadge
+                                    tone={subscriptionStatusTone(
+                                        subscription.status,
+                                    )}
                                 >
                                     {subscription.status}
-                                </Badge>
+                                </StatusBadge>
                                 {subscription.onTrial &&
                                     subscription.trialEndsAt && (
                                         <span className="text-muted-foreground text-xs">
@@ -312,9 +313,13 @@ export default function Index() {
                                                 {invoice.number}
                                             </TableCell>
                                             <TableCell>
-                                                <Badge variant="secondary">
+                                                <StatusBadge
+                                                    tone={invoiceStatusTone(
+                                                        invoice.status,
+                                                    )}
+                                                >
                                                     {invoice.status}
-                                                </Badge>
+                                                </StatusBadge>
                                             </TableCell>
                                             <TableCell className="text-right">
                                                 {invoice.total}{' '}
@@ -360,16 +365,13 @@ export default function Index() {
                                                 {transaction.eventType}
                                             </TableCell>
                                             <TableCell>
-                                                <Badge
-                                                    variant={
-                                                        transaction.status ===
-                                                        'succeeded'
-                                                            ? 'secondary'
-                                                            : 'destructive'
-                                                    }
+                                                <StatusBadge
+                                                    tone={transactionStatusTone(
+                                                        transaction.status,
+                                                    )}
                                                 >
                                                     {transaction.status}
-                                                </Badge>
+                                                </StatusBadge>
                                             </TableCell>
                                             <TableCell className="text-muted-foreground">
                                                 {new Date(

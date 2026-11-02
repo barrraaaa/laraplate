@@ -1,5 +1,16 @@
 import AdminLayout from '@/components/layouts/admin-layout';
 import FormError from '@/components/shared/form-error';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -25,7 +36,7 @@ import {
 } from '@/components/ui/table';
 import { PageProps } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
-import { Plus, Trash2 } from 'lucide-react';
+import { PencilLine, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 type CouponItem = {
@@ -139,20 +150,55 @@ export default function Coupons() {
                                             </div>
                                         </TableCell>
                                         <TableCell className="pr-6 text-right">
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() =>
-                                                    router.delete(
-                                                        `/admin/coupons/${coupon.id}`,
-                                                        {
-                                                            preserveScroll: true,
-                                                        },
-                                                    )
-                                                }
-                                            >
-                                                <Trash2 className="text-destructive size-4" />
-                                            </Button>
+                                            <div className="flex items-center justify-end gap-1">
+                                                <EditCouponDialog
+                                                    coupon={coupon}
+                                                />
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            aria-label={`Delete ${coupon.code}`}
+                                                        >
+                                                            <Trash2 className="text-destructive size-4" />
+                                                        </Button>
+                                                    </AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>
+                                                                Delete{' '}
+                                                                {coupon.code}?
+                                                            </AlertDialogTitle>
+                                                            <AlertDialogDescription>
+                                                                Existing
+                                                                redemptions
+                                                                history is
+                                                                removed with the
+                                                                coupon.
+                                                            </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel>
+                                                                Cancel
+                                                            </AlertDialogCancel>
+                                                            <AlertDialogAction
+                                                                onClick={() =>
+                                                                    router.delete(
+                                                                        `/admin/coupons/${coupon.id}`,
+                                                                        {
+                                                                            preserveScroll: true,
+                                                                        },
+                                                                    )
+                                                                }
+                                                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                                            >
+                                                                Delete coupon
+                                                            </AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -338,6 +384,108 @@ function CreateCouponDialog() {
 
                 <DialogFooter>
                     <Button onClick={create}>Create coupon</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
+function EditCouponDialog({ coupon }: { coupon: CouponItem }) {
+    const [open, setOpen] = useState(false);
+    const [description, setDescription] = useState(coupon.description ?? '');
+    const [stripeCouponId, setStripeCouponId] = useState(
+        coupon.stripeCouponId ?? '',
+    );
+    const [maxRedemptions, setMaxRedemptions] = useState(
+        coupon.maxRedemptions !== null ? String(coupon.maxRedemptions) : '',
+    );
+    const [expiresAt, setExpiresAt] = useState(
+        coupon.expiresAt && !coupon.expiresAt.startsWith('1970')
+            ? coupon.expiresAt.slice(0, 10)
+            : '',
+    );
+
+    const save = () => {
+        router.patch(
+            `/admin/coupons/${coupon.id}`,
+            {
+                description: description || undefined,
+                stripe_coupon_id: stripeCouponId || undefined,
+                max_redemptions: maxRedemptions
+                    ? Number(maxRedemptions)
+                    : undefined,
+                expires_at: expiresAt || undefined,
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => setOpen(false),
+            },
+        );
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={`Edit ${coupon.code}`}
+                >
+                    <PencilLine className="size-4" />
+                </Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Edit {coupon.code}</DialogTitle>
+                    <DialogDescription>
+                        Update limits and Stripe linkage — the discount rule
+                        itself is fixed once redemptions exist.
+                    </DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-4">
+                    <div className="space-y-1.5">
+                        <Label htmlFor="e-desc">Description</Label>
+                        <Input
+                            id="e-desc"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <Label htmlFor="e-stripe">Stripe coupon id</Label>
+                        <Input
+                            id="e-stripe"
+                            value={stripeCouponId}
+                            onChange={(e) => setStripeCouponId(e.target.value)}
+                        />
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="space-y-1.5">
+                            <Label htmlFor="e-max">Max redemptions</Label>
+                            <Input
+                                id="e-max"
+                                type="number"
+                                value={maxRedemptions}
+                                onChange={(e) =>
+                                    setMaxRedemptions(e.target.value)
+                                }
+                            />
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label htmlFor="e-expires">Expires at</Label>
+                            <Input
+                                id="e-expires"
+                                type="date"
+                                value={expiresAt}
+                                onChange={(e) => setExpiresAt(e.target.value)}
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <DialogFooter>
+                    <Button onClick={save}>Save changes</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

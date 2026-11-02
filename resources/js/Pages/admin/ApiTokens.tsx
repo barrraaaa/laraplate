@@ -1,4 +1,15 @@
 import AdminLayout from '@/components/layouts/admin-layout';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -105,21 +116,47 @@ export default function ApiTokens() {
                                                 : 'Never'}
                                         </TableCell>
                                         <TableCell className="pr-6 text-right">
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                aria-label={`Revoke ${token.name}`}
-                                                onClick={() =>
-                                                    router.delete(
-                                                        `/admin/api-tokens/${token.id}`,
-                                                        {
-                                                            preserveScroll: true,
-                                                        },
-                                                    )
-                                                }
-                                            >
-                                                <Trash2 className="text-destructive size-4" />
-                                            </Button>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        aria-label={`Revoke ${token.name}`}
+                                                    >
+                                                        <Trash2 className="text-destructive size-4" />
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>
+                                                            Revoke {token.name}?
+                                                        </AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            API requests using
+                                                            this token fail
+                                                            immediately.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>
+                                                            Cancel
+                                                        </AlertDialogCancel>
+                                                        <AlertDialogAction
+                                                            onClick={() =>
+                                                                router.delete(
+                                                                    `/admin/api-tokens/${token.id}`,
+                                                                    {
+                                                                        preserveScroll: true,
+                                                                    },
+                                                                )
+                                                            }
+                                                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                                        >
+                                                            Revoke
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
                                         </TableCell>
                                     </TableRow>
                                 ))}

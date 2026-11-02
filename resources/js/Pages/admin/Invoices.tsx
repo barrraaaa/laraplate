@@ -1,5 +1,7 @@
 import AdminLayout from '@/components/layouts/admin-layout';
-import { Badge } from '@/components/ui/badge';
+import StatusBadge, {
+    invoiceStatusTone,
+} from '@/components/shared/status-badge';
 import { Card, CardContent } from '@/components/ui/card';
 import {
     Table,
@@ -70,9 +72,13 @@ export default function Invoices() {
                                             {invoice.organization ?? '—'}
                                         </TableCell>
                                         <TableCell>
-                                            <Badge variant="secondary">
+                                            <StatusBadge
+                                                tone={invoiceStatusTone(
+                                                    invoice.status,
+                                                )}
+                                            >
                                                 {invoice.status}
-                                            </Badge>
+                                            </StatusBadge>
                                         </TableCell>
                                         <TableCell className="text-right text-sm">
                                             {invoice.total} USD

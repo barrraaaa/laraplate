@@ -1,4 +1,15 @@
 import AdminLayout from '@/components/layouts/admin-layout';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -103,29 +114,55 @@ export default function Settings() {
                                 >
                                     {app.maintenance ? 'Down' : 'Up'}
                                 </Badge>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() =>
-                                        router.post(
-                                            '/admin/settings/maintenance',
-                                            {},
-                                            { preserveScroll: true },
-                                        )
-                                    }
-                                >
-                                    {app.maintenance ? (
-                                        <>
-                                            <PlayCircle className="mr-1.5 size-4" />{' '}
-                                            Bring up
-                                        </>
-                                    ) : (
-                                        <>
-                                            <PauseCircle className="mr-1.5 size-4" />{' '}
-                                            Put into maintenance
-                                        </>
-                                    )}
-                                </Button>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button variant="outline" size="sm">
+                                            {app.maintenance ? (
+                                                <>
+                                                    <PlayCircle className="mr-1.5 size-4" />{' '}
+                                                    Bring up
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <PauseCircle className="mr-1.5 size-4" />{' '}
+                                                    Put into maintenance
+                                                </>
+                                            )}
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>
+                                                {app.maintenance
+                                                    ? 'Bring the application up?'
+                                                    : 'Put the application into maintenance?'}
+                                            </AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                {app.maintenance
+                                                    ? 'Visitors regain access immediately.'
+                                                    : 'Visitors see a maintenance page until you bring it back up.'}
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>
+                                                Cancel
+                                            </AlertDialogCancel>
+                                            <AlertDialogAction
+                                                onClick={() =>
+                                                    router.post(
+                                                        '/admin/settings/maintenance',
+                                                        {},
+                                                        {
+                                                            preserveScroll: true,
+                                                        },
+                                                    )
+                                                }
+                                            >
+                                                Confirm
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                             </div>
                         </CardContent>
                     </Card>

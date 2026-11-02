@@ -1,4 +1,5 @@
 import AdminLayout from '@/components/layouts/admin-layout';
+import UserAvatar from '@/components/shared/user-avatar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -90,11 +91,19 @@ export default function Users() {
                                 {users.data.map((user) => (
                                     <TableRow key={user.id}>
                                         <TableCell className="pl-6">
-                                            <div className="text-sm font-medium">
-                                                {user.name}
-                                            </div>
-                                            <div className="text-muted-foreground text-xs">
-                                                {user.email}
+                                            <div className="flex items-center gap-3">
+                                                <UserAvatar
+                                                    name={user.name}
+                                                    className="size-8"
+                                                />
+                                                <div>
+                                                    <div className="text-sm font-medium">
+                                                        {user.name}
+                                                    </div>
+                                                    <div className="text-muted-foreground text-xs">
+                                                        {user.email}
+                                                    </div>
+                                                </div>
                                             </div>
                                         </TableCell>
                                         <TableCell>

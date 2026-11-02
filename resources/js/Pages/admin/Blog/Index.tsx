@@ -1,4 +1,15 @@
 import AdminLayout from '@/components/layouts/admin-layout';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -110,20 +121,48 @@ export default function Index() {
                                                         <PencilLine className="size-4" />
                                                     </Link>
                                                 </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() =>
-                                                        router.delete(
-                                                            `/admin/blog/${post.id}`,
-                                                            {
-                                                                preserveScroll: true,
-                                                            },
-                                                        )
-                                                    }
-                                                >
-                                                    <Trash2 className="text-destructive size-4" />
-                                                </Button>
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            aria-label={`Delete ${post.title}`}
+                                                        >
+                                                            <Trash2 className="text-destructive size-4" />
+                                                        </Button>
+                                                    </AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>
+                                                                Delete this
+                                                                post?
+                                                            </AlertDialogTitle>
+                                                            <AlertDialogDescription>
+                                                                The post is
+                                                                removed
+                                                                permanently.
+                                                            </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel>
+                                                                Cancel
+                                                            </AlertDialogCancel>
+                                                            <AlertDialogAction
+                                                                onClick={() =>
+                                                                    router.delete(
+                                                                        `/admin/blog/${post.id}`,
+                                                                        {
+                                                                            preserveScroll: true,
+                                                                        },
+                                                                    )
+                                                                }
+                                                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                                            >
+                                                                Delete
+                                                            </AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
                                             </div>
                                         </TableCell>
                                     </TableRow>

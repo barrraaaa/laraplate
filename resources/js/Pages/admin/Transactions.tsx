@@ -1,5 +1,7 @@
 import AdminLayout from '@/components/layouts/admin-layout';
-import { Badge } from '@/components/ui/badge';
+import StatusBadge, {
+    transactionStatusTone,
+} from '@/components/shared/status-badge';
 import { Card, CardContent } from '@/components/ui/card';
 import {
     Table,
@@ -71,16 +73,13 @@ export default function Transactions() {
                                             {transaction.eventType}
                                         </TableCell>
                                         <TableCell>
-                                            <Badge
-                                                variant={
-                                                    transaction.status ===
-                                                    'succeeded'
-                                                        ? 'secondary'
-                                                        : 'destructive'
-                                                }
+                                            <StatusBadge
+                                                tone={transactionStatusTone(
+                                                    transaction.status,
+                                                )}
                                             >
                                                 {transaction.status}
-                                            </Badge>
+                                            </StatusBadge>
                                         </TableCell>
                                         <TableCell className="text-right text-sm">
                                             {transaction.amount}{' '}

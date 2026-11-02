@@ -1,5 +1,7 @@
 import AdminLayout from '@/components/layouts/admin-layout';
-import { Badge } from '@/components/ui/badge';
+import StatusBadge, {
+    subscriptionStatusTone,
+} from '@/components/shared/status-badge';
 import { Card, CardContent } from '@/components/ui/card';
 import {
     Table,
@@ -64,18 +66,13 @@ export default function Subscriptions() {
                                             {subscription.owner}
                                         </TableCell>
                                         <TableCell>
-                                            <Badge
-                                                variant={
-                                                    subscription.status ===
-                                                        'active' ||
-                                                    subscription.status ===
-                                                        'trialing'
-                                                        ? 'default'
-                                                        : 'destructive'
-                                                }
+                                            <StatusBadge
+                                                tone={subscriptionStatusTone(
+                                                    subscription.status,
+                                                )}
                                             >
                                                 {subscription.status}
-                                            </Badge>
+                                            </StatusBadge>
                                         </TableCell>
                                         <TableCell className="text-muted-foreground text-xs">
                                             {subscription.price ?? '—'}

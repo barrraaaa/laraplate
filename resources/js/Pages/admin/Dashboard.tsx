@@ -1,4 +1,5 @@
 import AdminLayout from '@/components/layouts/admin-layout';
+import UserAvatar from '@/components/shared/user-avatar';
 import {
     Card,
     CardContent,
@@ -226,11 +227,19 @@ export default function Dashboard() {
                                     {recentUsers.map((u) => (
                                         <TableRow key={u.id}>
                                             <TableCell className="pl-6">
-                                                <div className="text-sm font-medium">
-                                                    {u.name}
-                                                </div>
-                                                <div className="text-muted-foreground text-xs">
-                                                    {u.email}
+                                                <div className="flex items-center gap-2.5">
+                                                    <UserAvatar
+                                                        name={u.name}
+                                                        className="size-7"
+                                                    />
+                                                    <div>
+                                                        <div className="text-sm font-medium">
+                                                            {u.name}
+                                                        </div>
+                                                        <div className="text-muted-foreground text-xs">
+                                                            {u.email}
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-muted-foreground pr-6 text-right text-xs">

@@ -1,9 +1,19 @@
 import ApplicationLogo from '@/components/shared/application-logo';
 import ThemeToggle from '@/components/shared/theme-toggle';
+import UserAvatar from '@/components/shared/user-avatar';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
 import {
     Sidebar,
     SidebarContent,
+    SidebarFooter,
     SidebarGroup,
     SidebarGroupLabel,
     SidebarHeader,
@@ -14,6 +24,7 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from '@/components/ui/sidebar';
+import { useAuth } from '@/hooks/use-organization';
 import { Link, usePage } from '@inertiajs/react';
 import {
     Activity,
@@ -26,6 +37,7 @@ import {
     HeartPulse,
     Inbox,
     KeyRound,
+    LogOut,
     Receipt,
     Settings2,
     ShieldCheck,
@@ -81,6 +93,8 @@ const NAVIGATION: {
     },
     {
         section: 'Content',
+        // The blog ships as the admin-side sample CRUD — form pages,
+        // validation and destructive confirmation live right here.
         items: [{ label: 'Blog', href: '/admin/blog', icon: FileText }],
     },
     {
@@ -100,12 +114,18 @@ const NAVIGATION: {
 ];
 
 /**
- * Platform admin shell — mirrors the admin panel blueprint
- * (laravel_saas_admin_panel_boilerplate.tsx): grouped sidebar navigation
- * and a top bar. Coupons/Webhooks pages land as dedicated screens later.
+ * Platform admin shell — mirror of the admin panel blueprint. Active
+ * navigation follows the current URL (including sub-pages), the sidebar
+ * footer carries the signed-in admin, and the top bar mirrors the app
+ * shell's user menu.
  */
 export default function AdminLayout({ children }: PropsWithChildren) {
     const url = usePage().url;
+
+    const isActive = (href: string): boolean =>
+        href === '/admin'
+            ? url === '/admin'
+            : url === href || url.startsWith(href + '/');
 
     return (
         <SidebarProvider>
@@ -136,7 +156,7 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                                     <SidebarMenuItem key={item.href}>
                                         <SidebarMenuButton
                                             asChild
-                                            isActive={url === item.href}
+                                            isActive={isActive(item.href)}
                                         >
                                             <Link href={item.href}>
                                                 <item.icon />
@@ -162,6 +182,33 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                         </SidebarMenu>
                     </SidebarGroup>
                 </SidebarContent>
+
+                <SidebarFooter>
+                    <div className="flex items-center gap-2.5 px-2 py-2">
+                        <UserAvatar
+                            name={useAuth().user.name}
+                            url={useAuth().user.avatar_url}
+                            className="size-8"
+                        />
+                        <div className="min-w-0 flex-1">
+                            <div className="truncate text-sm font-medium">
+                                {useAuth().user.name}
+                            </div>
+                            <div className="text-muted-foreground truncate text-xs">
+                                {useAuth().user.email}
+                            </div>
+                        </div>
+                        <Link
+                            href={route('logout')}
+                            method="post"
+                            as="button"
+                            aria-label="Log out"
+                            className="text-muted-foreground hover:text-foreground rounded-md p-1.5 transition-colors"
+                        >
+                            <LogOut className="size-4" />
+                        </Link>
+                    </div>
+                </SidebarFooter>
             </Sidebar>
 
             <SidebarInset>
@@ -170,11 +217,63 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                     <Separator orientation="vertical" className="h-6" />
                     <div className="ml-auto flex items-center gap-2">
                         <ThemeToggle />
+                        <AdminUserMenu />
                     </div>
                 </header>
 
                 <div className="p-4 sm:p-6">{children}</div>
             </SidebarInset>
         </SidebarProvider>
+    );
+}
+
+function AdminUserMenu() {
+    const { user } = useAuth();
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <button
+                    aria-label="Account menu"
+                    className="bg-primary text-primary-foreground flex size-8 items-center justify-center overflow-hidden rounded-full text-xs font-semibold"
+                >
+                    {user.avatar_url ? (
+                        <img
+                            src={user.avatar_url}
+                            alt={user.name}
+                            className="size-full object-cover"
+                        />
+                    ) : (
+                        user.name.charAt(0).toUpperCase()
+                    )}
+                </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>
+                    <div className="text-sm font-medium">{user.name}</div>
+                    <div className="text-muted-foreground truncate text-xs font-normal">
+                        {user.email}
+                    </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                    <Link href={route('profile.edit')}>Profile settings</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                    <Link href={route('dashboard')}>Back to app</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                    <Link
+                        href={route('logout')}
+                        method="post"
+                        as="button"
+                        className="w-full"
+                    >
+                        Log out
+                    </Link>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 }
