@@ -14,6 +14,9 @@ class RegistrationTest extends TestCase
         $response = $this->get('/register');
 
         $response->assertStatus(200);
+        $response->assertInertia(fn ($page) => $page
+            ->where('canLoginWithGoogle', false)
+            ->where('canLoginWithGitHub', false));
     }
 
     public function test_new_users_can_register(): void

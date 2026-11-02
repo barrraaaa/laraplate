@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Modules\Core\FeatureManager;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,7 +22,12 @@ class RegisteredUserController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('auth/Register');
+        return Inertia::render('auth/Register', [
+            'canLoginWithGoogle' => filled(config('services.google.client_id'))
+                && app(FeatureManager::class)->enabled('social_login'),
+            'canLoginWithGitHub' => filled(config('services.github.client_id'))
+                && app(FeatureManager::class)->enabled('social_login'),
+        ]);
     }
 
     /**

@@ -3,10 +3,20 @@ import FormError from '@/components/shared/form-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Head, Link, useForm } from '@inertiajs/react';
+import SocialAuthButtons from '@/features/auth/social-auth-buttons';
+import { PageProps } from '@/types';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 
+type RegisterProps = {
+    canLoginWithGoogle: boolean;
+    canLoginWithGitHub: boolean;
+};
+
 export default function Register() {
+    const { canLoginWithGoogle, canLoginWithGitHub } =
+        usePage<PageProps<RegisterProps>>().props;
+
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         email: '',
@@ -109,6 +119,11 @@ export default function Register() {
                     <Button disabled={processing}>Register</Button>
                 </div>
             </form>
+
+            <SocialAuthButtons
+                canLoginWithGoogle={canLoginWithGoogle}
+                canLoginWithGitHub={canLoginWithGitHub}
+            />
         </AuthLayout>
     );
 }
