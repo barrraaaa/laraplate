@@ -1,0 +1,21 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 5
+
+    paths:
+        - app/
+        - config/
+        - database/
+        - routes/
+        - tests/
+
+    excludePaths:
+        analyse:
+            - database/migrations/*
+            - vendor/*
+
+    # Laravel's dynamic magic is broadly understood by Larastan — keep the
+    # remaining dynamic return types honest rather than suppressing broadly.
+    treatPhpDocTypesAsCertain: false
